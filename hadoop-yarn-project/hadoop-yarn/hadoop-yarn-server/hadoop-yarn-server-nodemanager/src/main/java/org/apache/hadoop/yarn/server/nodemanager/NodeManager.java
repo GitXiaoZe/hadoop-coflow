@@ -74,13 +74,11 @@ import org.apache.hadoop.yarn.server.nodemanager.webapp.WebServer;
 import org.apache.hadoop.yarn.server.scheduler.OpportunisticContainerAllocator;
 import org.apache.hadoop.yarn.server.security.ApplicationACLsManager;
 import org.apache.hadoop.yarn.state.MultiStateTransitionListener;
+import org.apache.hadoop.yarn.util.MapOutputSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.DataOutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -120,8 +118,8 @@ public class NodeManager extends CompositeService
    */
   public static final int SHUTDOWN_HOOK_PRIORITY = 30;
 
-  private int MAX_REDUCER;
-  public static final LinkedList<String> shufflePriorityInfo = new LinkedList<>();
+  //map job_id on MapOutputSize
+  private HashMap<String, MapOutputSize> localMapOutput;
 
   private static final Logger LOG =
        LoggerFactory.getLogger(NodeManager.class);
@@ -485,10 +483,15 @@ public class NodeManager extends CompositeService
     boolean use_coflow = conf.getBoolean(YarnConfiguration.USE_COFLOW, YarnConfiguration.DEFAULT_USE_COFLOW);
     if(use_coflow){
       dscp_table = new ConcurrentHashMap<>();
-      ReceiveDscpFromRMThread updateDscpThread = new ReceiveDscpFromRMThread();
-      updateDscpThread.start();
+      localMapOutput = new HashMap<>();
 
+      ReceiveDscpFromRMThread updateDscpThread = new ReceiveDscpFromRMThread();
+      ReceiveMapOutputThread receiveMapOutputThread = new ReceiveMapOutputThread();
       NodeDscpInfoThread nodeDscpInfoThread = new NodeDscpInfoThread();
+
+
+      updateDscpThread.start();
+      receiveMapOutputThread.start();
       nodeDscpInfoThread.start();
     }
 
@@ -1124,6 +1127,78 @@ public class NodeManager extends CompositeService
     }
 
 
+  }
+
+  protected class ReceiveMapOutputThread extends Thread{
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
+    public void run(){
+      try{
+        InetSocketAddress mapTaskOutputAddress = new InetSocketAddress("0.0.0.0", 60006);
+        serverSocket = new ServerSocket();
+        serverSocket.bind(mapTaskOutputAddress);
+        LOG.info("The ReceiveMapOutputThread service starts......");
+        while(true){
+          clientSocket = serverSocket.accept();
+          new ReceiveMapOutputSizeDealThread(clientSocket).start();
+        }
+      }catch(IOException e){
+        e.printStackTrace();
+      }finally {
+        try{
+          serverSocket.close();
+        }catch(IOException e){
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  protected class ReceiveMapOutputSizeDealThread extends Thread{
+    private Socket socket;
+    private BufferedReader br;
+    public ReceiveMapOutputSizeDealThread(Socket socket){ this.socket = socket; }
+    public void run(){
+      try{
+        br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        String command = br.readLine();
+        String job_id = br.readLine();
+        if(command.equals("push")){//Map Tasks Will push their output size to this NM;
+          LOG.info("job - " + job_id + " push its map output to NM");
+          String data[] = br.readLine().split(";");
+          synchronized (localMapOutput){
+            MapOutputSize tmp = localMapOutput.get(job_id);
+            if(tmp == null){
+              tmp = new MapOutputSize(data.length);
+              localMapOutput.put(job_id, tmp);
+            }
+            for(int i=0; i < data.length; i++)
+              tmp.addItem(i, Integer.valueOf(data[i]));
+          }
+        }else if(command.equals("pull")){ //AM will pull all map output size from this NM
+          LOG.info("job - " + job_id + " pull its map output from NM");
+          ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+          MapOutputSize tmp = null;
+          synchronized (localMapOutput){
+            tmp = localMapOutput.remove(job_id);
+            if(tmp == null){
+              LOG.info("job - " + job_id + " may be error!!!");
+              return;
+            }
+          }
+          oos.writeObject(tmp);
+          oos.flush();
+          oos.close();
+
+        }else{
+          LOG.info("This NodeManager received unknown command");
+        }
+        br.close();
+        socket.close();
+      }catch(IOException e){
+        e.printStackTrace();
+      }
+    }
   }
 
 }

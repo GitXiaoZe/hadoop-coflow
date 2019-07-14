@@ -74,6 +74,7 @@ import org.apache.hadoop.yarn.server.security.MasterKeyData;
 import org.apache.hadoop.yarn.server.utils.AMRMClientUtils;
 import org.apache.hadoop.yarn.server.utils.YarnServerSecurityUtils;
 import org.apache.hadoop.yarn.util.ASPair;
+import org.apache.hadoop.yarn.util.MapOutputSize;
 import org.apache.hadoop.yarn.util.resource.Resources;
 import org.apache.hadoop.yarn.util.ReduceSize;
 import org.apache.hadoop.yarn.util.ReduceInfo2;
@@ -103,7 +104,8 @@ public class ApplicationMasterService extends AbstractService implements
   private final AMSProcessingChain amsProcessingChain;
 
   //public static ConcurrentHashMap<String, ReduceSize> appReduceSize;
-  public ConcurrentHashMap<String, ReduceInfo2> appReduceSize;
+  //public ConcurrentHashMap<String, ReduceInfo2> appReduceSize;
+  public ConcurrentHashMap<String, MapOutputSize> appReduceSize;
   public ASPair[] coflow_table;
   public int coflow_table_index;
   public int coflow_table_max;
@@ -685,10 +687,10 @@ public class ApplicationMasterService extends AbstractService implements
     }
     public void run(){
       ObjectInputStream ois;
-      ReduceInfo2 reduce_info;
+      MapOutputSize reduce_info;
       try{
         ois = new ObjectInputStream(socket.getInputStream());
-        reduce_info = (ReduceInfo2)ois.readObject();
+        reduce_info = (MapOutputSize)ois.readObject();
         LOG.info("172.16.100.1:60000 receives " + reduce_info.toString());
         appReduceSize.put(reduce_info.ID, reduce_info);
         AddASPair(new ASPair(reduce_info.ID, reduce_info.total_size));

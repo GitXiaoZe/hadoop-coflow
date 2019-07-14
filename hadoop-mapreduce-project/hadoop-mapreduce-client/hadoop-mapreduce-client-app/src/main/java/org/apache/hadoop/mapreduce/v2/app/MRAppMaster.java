@@ -18,18 +18,10 @@
 
 package org.apache.hadoop.mapreduce.v2.app;
 
-import java.io.Serializable;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.Socket;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedExceptionAction;
@@ -159,10 +151,7 @@ import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 import org.apache.hadoop.yarn.security.client.ClientToAMTokenSecretManager;
-import org.apache.hadoop.yarn.util.Clock;
-import org.apache.hadoop.yarn.util.SystemClock;
-import org.apache.hadoop.yarn.util.ReduceSize;
-import org.apache.hadoop.yarn.util.ReduceInfo2;
+import org.apache.hadoop.yarn.util.*;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -197,7 +186,8 @@ public class MRAppMaster extends CompositeService {
   public static final int SHUTDOWN_HOOK_PRIORITY = 30;
   public static final String INTERMEDIATE_DATA_ENCRYPTION_ALGO = "HmacSHA1";
 
-  public static ReduceInfo2 reduceInfos = null;
+  //public static ReduceInfo2 reduceInfos = null;
+  public static MapOutputSize reduceInfos = null;
   public static GetMapIntermediateOutputThread getMapIntermediateOutputThread = null;
   public static int reduceNum;
 
@@ -315,10 +305,12 @@ public class MRAppMaster extends CompositeService {
     jobId = MRBuilderUtils.newJobId(appAttemptID.getApplicationId(),
         appAttemptID.getApplicationId().getId());
     int numReduceTasks = conf.getInt(MRJobConfig.NUM_REDUCES, 0);
+
     reduceNum = numReduceTasks;
-    reduceInfos = new ReduceInfo2(reduceNum, appAttemptID.getApplicationId());
-    //reduceInfos = new ReduceInfo[reduceNum];
-    //reduceSize = new ReduceSize(appAttemptID.getApplicationId());
+    reduceInfos = new MapOutputSize(reduceNum);
+    //reduceInfos = new ReduceInfo2(reduceNum, appAttemptID.getApplicationId());
+
+
     if ((numReduceTasks > 0 && 
         conf.getBoolean("mapred.reducer.new-api", false)) ||
           (numReduceTasks == 0 && 
@@ -1737,7 +1729,7 @@ public class MRAppMaster extends CompositeService {
     public void run() {
       long start = System.currentTimeMillis();
       LOG.info("the GetMapIntermediateOutputThread start. ");
-
+      /*
       String hadoopTmpDir = "/home/tian/Ho/hadoop-3.1.1-src/hadoop-dist/target/hadoop-3.1.1/tmp/";
       String intermediateOutputDir = hadoopTmpDir + "nm-local-dir/usercache/" + jobUserName + "/appcache/" + applicationAttemptId.getApplicationId().toString() + "/output";
       // LOG.info("the intermediate output dir is: " + intermediateOutputDir);
@@ -1813,6 +1805,32 @@ public class MRAppMaster extends CompositeService {
           }
         }
       }
+      */
+      reduceInfos.ID = applicationAttemptId.getApplicationId().toString();
+      String prefix_ip = "172.16.100.";
+      for(int i = 2; i <= 10; i++){
+        String ip = prefix_ip  + i;
+        try{
+          LOG.info("begin to Fetcher MapOutputSize from " + ip);
+          Socket socket = new Socket(ip, 60006);
+          BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+          bw.write("pull\n");
+          bw.write(applicationAttemptId.getApplicationId().toString() + "\n");
+          bw.flush();
+          bw.close();
+          ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+          MapOutputSize tmp = (MapOutputSize) (ois.readObject());
+          LOG.info("Fetcher MapOutputSize : " + tmp);
+          reduceInfos.addAnother(tmp);
+          ois.close();
+          socket.close();
+        }catch(IOException e){
+          e.printStackTrace();
+        }catch(ClassNotFoundException e){
+          e.printStackTrace();
+        }
+      }
+
 
       long end = System.currentTimeMillis();
       LOG.info("the GetMapIntermediateOutputThread finish, and takes " + ((end - start) / 1000.0) + "s.");

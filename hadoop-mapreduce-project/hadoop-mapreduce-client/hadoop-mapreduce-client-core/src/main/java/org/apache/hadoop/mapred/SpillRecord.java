@@ -19,11 +19,8 @@ package org.apache.hadoop.mapred;
 
 import static org.apache.hadoop.mapred.MapTask.MAP_OUTPUT_INDEX_RECORD_LENGTH;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.zip.CheckedInputStream;
@@ -195,7 +192,20 @@ public class SpillRecord {
     ret += entries.get(3*i+1);
 
     //send to NM;
-
+    Socket socket;
+    BufferedWriter bw;
+    try{
+      socket = new Socket("127.0.0.1", 60006);
+      bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+      bw.write("push");
+      bw.write(job_id+"\n");
+      bw.write(ret+"\n");
+      bw.flush();
+      bw.close();
+      socket.close();
+    }catch(IOException e){
+      e.printStackTrace();
+    }
   }
 
 }

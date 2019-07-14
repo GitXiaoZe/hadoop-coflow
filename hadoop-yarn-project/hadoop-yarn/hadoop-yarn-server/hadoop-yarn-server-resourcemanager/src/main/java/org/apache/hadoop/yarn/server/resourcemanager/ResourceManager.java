@@ -1725,7 +1725,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String job_id = br.readLine();
         int reduce_task_id = Integer.valueOf(br.readLine());
-        long diff = getApplicationMasterService().appReduceSize.get(job_id).get(reduce_task_id);
+        long diff = getApplicationMasterService().appReduceSize.get(job_id).getItem(reduce_task_id);
         getApplicationMasterService().UpdateASPair(job_id, reduce_task_id, diff);
 
       }catch(IOException e){
