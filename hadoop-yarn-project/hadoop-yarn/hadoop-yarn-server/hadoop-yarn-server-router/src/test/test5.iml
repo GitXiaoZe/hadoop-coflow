@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/java" isTestSource="true" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="test55" />
+    <orderEntry type="module" module-name="main13" />
+    <orderEntry type="module" module-name="main" />
+    <orderEntry type="module" module-name="test30" />
+    <orderEntry type="module" module-name="test41" />
+    <orderEntry type="module" module-name="test51" />
+    <orderEntry type="module" module-name="test39" />
+    <orderEntry type="module" module-name="main56" />
+    <orderEntry type="module" module-name="test17" />
+    <orderEntry type="module" module-name="main18" />
+    <orderEntry type="module" module-name="test45" />
+    <orderEntry type="module" module-name="test18" />
+    <orderEntry type="module" module-name="main53" />
+    <orderEntry type="module" module-name="main41" />
+    <orderEntry type="module" module-name="test29" />
+    <orderEntry type="module" module-name="test44" />
+  </component>
+</module>
