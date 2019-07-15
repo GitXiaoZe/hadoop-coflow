@@ -1806,7 +1806,10 @@ public class MRAppMaster extends CompositeService {
         }
       }
       */
-      reduceInfos.ID = applicationAttemptId.getApplicationId().toString();
+      String job_id_items[] = applicationAttemptId.getApplicationId().toString().split("_");
+      Integer id = Integer.valueOf(job_id_items[2]);
+
+      reduceInfos.ID = job_id_items[1] + "_" + id.toString();
       String prefix_ip = "172.16.100.";
       for(int i = 2; i <= 10; i++){
         String ip = prefix_ip  + i;
@@ -1815,7 +1818,7 @@ public class MRAppMaster extends CompositeService {
           Socket socket = new Socket(ip, 60006);
           BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
           bw.write("pull\n");
-          bw.write(applicationAttemptId.getApplicationId().toString() + "\n");
+          bw.write(reduceInfos.ID + "\n");
           bw.flush();
           bw.close();
           ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
@@ -1838,8 +1841,7 @@ public class MRAppMaster extends CompositeService {
   }
 
 
-
-
+  
 
 
   // The shutdown hook that runs when a signal is received AND during normal

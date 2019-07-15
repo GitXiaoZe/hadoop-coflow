@@ -1163,6 +1163,7 @@ public class NodeManager extends CompositeService
         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String command = br.readLine();
         String job_id = br.readLine();
+        LOG.info("app - " + job_id + " send a command : " + command);
         if(command.equals("push")){//Map Tasks Will push their output size to this NM;
           LOG.info("job - " + job_id + " push its map output to NM");
           String data[] = br.readLine().split(";");
@@ -1183,7 +1184,7 @@ public class NodeManager extends CompositeService
             tmp = localMapOutput.remove(job_id);
             if(tmp == null){
               LOG.info("job - " + job_id + " may be error!!!");
-              return;
+              //return;
             }
           }
           oos.writeObject(tmp);

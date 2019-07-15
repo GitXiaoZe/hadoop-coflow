@@ -28,6 +28,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
@@ -1896,7 +1897,7 @@ public class MapTask extends Task {
           mapOutputFile.getOutputIndexFileForWrite(finalIndexFileSize);
 	  LOG.info("finalIndexFile is " + finalIndexFile);
 	  LOG.info("finalOutputFile is " + finalOutputFile);
-
+      LOG.info("numSpills = " + numSpills);
       //The output stream for the final single output file
       FSDataOutputStream finalOut = rfs.create(finalOutputFile, true, 4096);
       FSDataOutputStream finalPartitionOut = null;
@@ -2001,7 +2002,10 @@ public class MapTask extends Task {
         spillRec.writeToFile(finalIndexFile, job);
         finalOut.close();
         //spillRec.writeIntermediateOutput(finalIndexFile.getParent().toString() +"_" + InetAddress.getLocalHost().getHostName() +"_output");
+        LOG.info("SpillRecord writeToNodeManager");
+
         spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier()+"_"+mapTask.getJobID().getId());
+
         if (finalPartitionOut != null) {
           finalPartitionOut.close();
         }

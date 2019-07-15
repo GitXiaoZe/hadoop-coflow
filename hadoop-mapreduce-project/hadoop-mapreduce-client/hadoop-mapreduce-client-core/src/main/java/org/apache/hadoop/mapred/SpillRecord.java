@@ -190,14 +190,14 @@ public class SpillRecord {
       ret += entries.get(3*i+1) + ";";
     }
     ret += entries.get(3*i+1);
-
+    LOG.info("MapTask begin to write NM");
     //send to NM;
     Socket socket;
     BufferedWriter bw;
     try{
       socket = new Socket("127.0.0.1", 60006);
       bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-      bw.write("push");
+      bw.write("push\n");
       bw.write(job_id+"\n");
       bw.write(ret+"\n");
       bw.flush();
