@@ -412,7 +412,6 @@ public class ShuffleSchedulerImpl<K,V> implements ShuffleScheduler<K,V> {
   public synchronized void addKnownMapOutput(String hostName,
                                              String hostUrl,
                                              TaskAttemptID mapId) {
-    LOG.info("hezehao : HostName = " + hostName + "; URL = " + hostUrl + " ; MapTaskAttemptID = " + mapId.toString());
     MapHost host = mapLocations.get(hostName);
     if (host == null) {
       host = new MapHost(hostName, hostUrl);

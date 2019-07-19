@@ -1862,7 +1862,7 @@ public class MapTask extends Task {
       long finalIndexFileSize = 0;
       final Path[] filename = new Path[numSpills];
       final TaskAttemptID mapId = getTaskID();
-
+      LOG.info("hezehao numSpills = " + numSpills);
       for(int i = 0; i < numSpills; i++) {
         filename[i] = mapOutputFile.getSpillFile(i);
         finalOutFileSize += rfs.getFileStatus(filename[i]).getLen();
@@ -1878,6 +1878,7 @@ public class MapTask extends Task {
             mapOutputFile.getOutputIndexFileForWriteInVolume(filename[0]), job);
         }
         sortPhase.complete();
+        LOG.info("hezehao return in numSpills = 1");
         return;
       }
 
@@ -1897,7 +1898,6 @@ public class MapTask extends Task {
           mapOutputFile.getOutputIndexFileForWrite(finalIndexFileSize);
 	  LOG.info("finalIndexFile is " + finalIndexFile);
 	  LOG.info("finalOutputFile is " + finalOutputFile);
-      LOG.info("numSpills = " + numSpills);
       //The output stream for the final single output file
       FSDataOutputStream finalOut = rfs.create(finalOutputFile, true, 4096);
       FSDataOutputStream finalPartitionOut = null;
@@ -1931,6 +1931,7 @@ public class MapTask extends Task {
           }
         }
         sortPhase.complete();
+        LOG.info("hezehao return in numSpills = 0");
         return;
       }
       {
