@@ -506,7 +506,6 @@ public class ShuffleHandler extends AuxiliaryService {
                                         DEFAULT_MAX_SHUFFLE_THREADS);
     if (maxShuffleThreads == 0) {
       maxShuffleThreads = 2 * Runtime.getRuntime().availableProcessors();
-      LOG.info("hezehao : Runtime.getRuntime().availableProcessors() " + Runtime.getRuntime().availableProcessors());
     }
     
     shuffleBufferSize = conf.getInt(SHUFFLE_BUFFER_SIZE, 

@@ -156,15 +156,15 @@ public class ApplicationMasterService extends AbstractService implements
     }else{
       priority = 2;
     }
-    LOG.info("the priority of App - " + newPair.ApplicationID + " is "  + priority);
+    LOG.info("hezehao Application - " + newPair.ApplicationID + " size = "  + newPair.size +"  the priority  is "  + priority);
     synchronized (coflow_table){
       newPair.size = priority;
       coflow_table[coflow_table_index++] = newPair;
 
       String rte = "";
       int i;
-      for(i = 0; i<coflow_table_index; i++){
-        rte += coflow_table[i].ApplicationID + ";" + coflow_table[i].size;
+      for(i = 0; i < coflow_table_index - 1; i++){
+        rte += coflow_table[i].ApplicationID + ";" + coflow_table[i].size + ";";
       }
       rte += coflow_table[i].ApplicationID + ";" + coflow_table[i].size;
       rmContext.getResourceManager().UpdateDscp(rte);

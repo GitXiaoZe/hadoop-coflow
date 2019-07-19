@@ -142,7 +142,6 @@ public class AuxServices extends AbstractService
         YarnConfiguration.NM_AUX_SERVICES);
 
     for (final String sName : auxNames) {
-      LOG.info("hezehao NodeManager AuxServices " + sName);
       try {
         Preconditions
             .checkArgument(
