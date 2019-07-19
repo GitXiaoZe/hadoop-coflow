@@ -1857,6 +1857,7 @@ public class MapTask extends Task {
 
     private void mergeParts() throws IOException, InterruptedException, 
                                      ClassNotFoundException {
+      LOG.info("hezehao merge parts begin to exection");
       // get the approximate size of the final output/index files
       long finalOutFileSize = 0;
       long finalIndexFileSize = 0;
