@@ -110,6 +110,8 @@ public class ApplicationMasterService extends AbstractService implements
   public int coflow_table_index;
   public int coflow_table_max;
 
+  public static final long GB = (1L << 30);
+
   public ApplicationMasterService(RMContext rmContext,
       YarnScheduler scheduler) {
     this(ApplicationMasterService.class.getName(), rmContext, scheduler);
@@ -133,24 +135,39 @@ public class ApplicationMasterService extends AbstractService implements
         YarnConfiguration.DEFAULT_RM_SCHEDULER_ADDRESS,
         YarnConfiguration.DEFAULT_RM_SCHEDULER_PORT);
     initializeProcessingChain(conf);
-    /*
-    boolean use_max_reducer = conf.getBoolean(YarnConfiguration.USE_MAX_REDUCER, YarnConfiguration.DEFAULT_USE_MAX_REDUCER);
-    if(use_max_reducer) {
-        reduceScheduleAddress = new InetSocketAddress("172.16.100.1", 50000);
-        ReduceScheduleThread reduceScheduleThread = new ReduceScheduleThread();
-        reduceScheduleThread.start();
-        appReduceSize = new ConcurrentHashMap<>();
-    }
-     */
+
     boolean use_coflow = conf.getBoolean(YarnConfiguration.USE_COFLOW, YarnConfiguration.DEFAULT_USE_COFLOW);
     if(use_coflow){
       appReduceSize = new ConcurrentHashMap<>();
       coflow_table_max = 50;
       coflow_table_index = 0;
       coflow_table = new ASPair[coflow_table_max]; //assume there are 50 jobs at most
+
       reduceScheduleAddress = new InetSocketAddress("172.16.100.1", 60000);
       ReduceScheduleThread2 reduceScheduleThread = new ReduceScheduleThread2();
       reduceScheduleThread.start();
+    }
+  }
+  // This is a experimental method, and I assume that there are 2 types of job size
+  public void fixedPriority(ASPair newPair){
+    int priority = 1;
+    if(newPair.size < ApplicationMasterService.GB * 3){ // the job with 2G dataset is assigned priority 1
+      priority = 1;
+    }else{
+      priority = 2;
+    }
+    LOG.info("the priority of App - " + newPair.ApplicationID + " is "  + priority);
+    synchronized (coflow_table){
+      newPair.size = priority;
+      coflow_table[coflow_table_index++] = newPair;
+
+      String rte = "";
+      int i;
+      for(i = 0; i<coflow_table_index; i++){
+        rte += coflow_table[i].ApplicationID + ";" + coflow_table[i].size;
+      }
+      rte += coflow_table[i].ApplicationID + ";" + coflow_table[i].size;
+      rmContext.getResourceManager().UpdateDscp(rte);
     }
   }
 
@@ -186,15 +203,7 @@ public class ApplicationMasterService extends AbstractService implements
   public void UpdateASPair(String ID, int reduce_task_id, long diff_size){
     LOG.info("UpdateASPair = " + ID + ";" + reduce_task_id + ";" + diff_size);
     synchronized (coflow_table){
-
       assert coflow_table_index > 0;
-      /*
-      String coflow_table_rte = "";
-      for(int i=0; i < coflow_table_index; i++){
-        coflow_table_rte += coflow_table[i].ApplicationID+"; size : " + coflow_table[i].size+";\n";
-      }
-      LOG.info("coflow_table : " + coflow_table_rte);
-      */
 
       int idx;
       for(idx = 0; idx < coflow_table_index; idx++)
@@ -239,6 +248,8 @@ public class ApplicationMasterService extends AbstractService implements
 
     }
   }
+
+
 
 
   private void addPlacementConstraintHandler(Configuration conf) {
@@ -693,7 +704,8 @@ public class ApplicationMasterService extends AbstractService implements
         reduce_info = (MapOutputSize)ois.readObject();
         LOG.info("172.16.100.1:60000 receives " + reduce_info.toString());
         appReduceSize.put(reduce_info.ID, reduce_info);
-        AddASPair(new ASPair(reduce_info.ID, reduce_info.total_size));
+        //AddASPair(new ASPair(reduce_info.ID, reduce_info.total_size));
+        fixedPriority(new ASPair(reduce_info.ID, reduce_info.total_size));
         ois.close();
       }catch(IOException e){
         throw new YarnRuntimeException(e);

@@ -161,7 +161,8 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     
     this.localFS = localFS;
     this.rfs = ((LocalFileSystem)localFS).getRaw();
-    
+
+    //The percentage of memory to be allocated from the maximum heap size to storing map outputs during the shuffle.
     final float maxInMemCopyUse =
       jobConf.getFloat(MRJobConfig.SHUFFLE_INPUT_BUFFER_PERCENT,
           MRJobConfig.DEFAULT_SHUFFLE_INPUT_BUFFER_PERCENT);
@@ -175,10 +176,13 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     this.memoryLimit = (long)(jobConf.getLong(
         MRJobConfig.REDUCE_MEMORY_TOTAL_BYTES,
         Runtime.getRuntime().maxMemory()) * maxInMemCopyUse);
+    LOG.info("hezehao MaxMemory = " + (Runtime.getRuntime().maxMemory() >> 20)  + "MB") ;
 
+    //The number of streams to merge at once while sorting files
     this.ioSortFactor = jobConf.getInt(MRJobConfig.IO_SORT_FACTOR,
         MRJobConfig.DEFAULT_IO_SORT_FACTOR);
 
+    //Maximum percentage of the in-memory limit that a single shuffle can consume
     final float singleShuffleMemoryLimitPercent =
         jobConf.getFloat(MRJobConfig.SHUFFLE_MEMORY_LIMIT_PERCENT,
             DEFAULT_SHUFFLE_MEMORY_LIMIT_PERCENT);

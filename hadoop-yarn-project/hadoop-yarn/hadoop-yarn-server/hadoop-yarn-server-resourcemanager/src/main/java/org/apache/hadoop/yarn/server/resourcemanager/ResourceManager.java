@@ -336,8 +336,8 @@ public class ResourceManager extends CompositeService implements Recoverable {
     use_coflow = conf.getBoolean(YarnConfiguration.USE_COFLOW, YarnConfiguration.DEFAULT_USE_COFLOW);
     if(use_coflow){
       UpdateDscpThreadList = new LinkedList<>();
-      nodeReducerInfoThread = new NodeReducerInfoThread();
-      nodeReducerInfoThread.start();
+      //nodeReducerInfoThread = new NodeReducerInfoThread();
+      //nodeReducerInfoThread.start();
       listenNMConnectionThread = new ListenNMConnectionThread();
       listenNMConnectionThread.start();
     }

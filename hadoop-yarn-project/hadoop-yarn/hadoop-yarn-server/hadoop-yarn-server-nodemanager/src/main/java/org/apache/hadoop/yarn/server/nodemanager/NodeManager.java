@@ -1115,9 +1115,15 @@ public class NodeManager extends CompositeService
         while( (updateDscpMessage = br.readLine()) != null){
           //LOG.info("ReceiveDscpFromRMThread get message: " + updateDscpMessage + " ..............");
           String dscps[] = updateDscpMessage.split(";");
+          /*
           for(int i=0; i < dscps.length; i++){
             dscp_table.put(dscps[i], i + 1);
             LOG.info(dscps[i]+" ->->->->-> priority " + (i+1));
+          }
+          */
+          for(int i=0; i < dscps.length; i+=2){
+            dscp_table.put(dscps[i], Integer.valueOf(dscps[i+1]));
+            LOG.info(" The  priority  of " + dscps[i] + " is " + Integer.valueOf(dscps[i+1]));
           }
         }
       }catch(IOException e){

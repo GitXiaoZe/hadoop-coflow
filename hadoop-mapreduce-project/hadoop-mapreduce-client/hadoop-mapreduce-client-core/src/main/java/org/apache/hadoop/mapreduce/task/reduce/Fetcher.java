@@ -183,7 +183,7 @@ class Fetcher<K,V> extends Thread {
     setDaemon(true);
 
     use_coflow = job.getBoolean(YarnConfiguration.USE_COFLOW, YarnConfiguration.DEFAULT_USE_COFLOW);
-    LOG.info("Fetcher-use_coflow : " + use_coflow);
+
     synchronized (Fetcher.class) {
       sslShuffle = job.getBoolean(MRConfig.SHUFFLE_SSL_ENABLED_KEY,
                                   MRConfig.SHUFFLE_SSL_ENABLED_DEFAULT);
@@ -219,10 +219,10 @@ class Fetcher<K,V> extends Thread {
             metrics.threadFree();            
           }
         }
-        LOG.info("Fetcher Thread is running");
       }
 
       LOG.info("Fetcher exit while ");
+      /*
       if(use_coflow){
         LOG.info("Fetcher-"+id+" begins to shutdown");
         synchronized (((Shuffle)exceptionReporter).wfThread){
@@ -233,9 +233,11 @@ class Fetcher<K,V> extends Thread {
       }else{
         LOG.info("Fetcher coflow" + use_coflow);
       }
+      */
 
     } catch (InterruptedException ie) {
       LOG.info("Fetcher exit Interrupted");
+      /*
       if(use_coflow){
         LOG.info("Fetcher-"+id+" begins to shutdown");
         synchronized (((Shuffle)exceptionReporter).wfThread){
@@ -246,6 +248,7 @@ class Fetcher<K,V> extends Thread {
       }else{
         LOG.info("Fetcher coflow" + use_coflow);
       }
+       */
       return;
     } catch (Throwable t) {
       exceptionReporter.reportException(t);
@@ -483,7 +486,7 @@ class Fetcher<K,V> extends Thread {
         field.setAccessible(true);
         socket = (Socket)field.get(httpClient);
         socket.setTrafficClass(priority << 2);
-        LOG.info(socket.getInetAddress().getHostAddress() + "\'s priority: " + priority);
+        LOG.info("hezehao " + socket.getInetAddress().getHostAddress() + "\'s priority: " + priority);
       }
       catch(NoSuchFieldException e) {
         LOG.error("no such Field exception. " + e);
@@ -777,46 +780,10 @@ class Fetcher<K,V> extends Thread {
       first = false;
     }
 
-    // if (use_max_reducer) {
-    //   final Map<String,List<String>> q =
-    //     new QueryStringDecoder(host.getBaseUrl()).getParameters();
-    //   final List<String> reduceQ = q.get("reduce");
-    //   final List<String> jobQ = q.get("job");
-
-    //   String[] job_splits = jobQ.get(0).split("_");
-    //   String ID = job_splits[1] + "_" + Integer.parseInt(job_splits[2]);
-
-    //   Socket s = null;
-    //   PrintWriter pw = null;
-    //   DataInputStream dis = null;
-    //   try {
-    //     s = new Socket("127.0.0.1", 50002);
-    //     pw = new PrintWriter(s.getOutputStream());
-    //     pw.write("request\n");
-    //     pw.write(ID + "\n");
-    //     pw.write(reduceQ.get(0) + "\n");
-    //     pw.flush();
-    //     dis = new DataInputStream(s.getInputStream());
-    //     priority = dis.readInt();
-    //     dis.close();
-    //     pw.close();
-    //   }
-    //   catch(IOException e){
-    //     throw new YarnRuntimeException(e);
-    //   }
-    //   finally {
-    //     try {
-    //       s.close();
-    //     }
-    //     catch(IOException e){
-    //       throw new YarnRuntimeException(e);
-    //     }
-    //   }
     url.append("&priority=" + priority);
-    // }
    
     // LOG.debug("MapOutput URL for " + host + " -> " + url.toString());
-    LOG.info("MapOutput URL for " + host + " -> " + url.toString());
+    LOG.info("hezehao MapOutput URL for " + host + " -> " + url.toString());
     return new URL(url.toString());
   }
   
