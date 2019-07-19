@@ -110,7 +110,6 @@ public class ApplicationMasterService extends AbstractService implements
   public int coflow_table_index;
   public int coflow_table_max;
 
-  public static final long GB = (1L << 30);
 
   public ApplicationMasterService(RMContext rmContext,
       YarnScheduler scheduler) {
@@ -151,7 +150,7 @@ public class ApplicationMasterService extends AbstractService implements
   // This is a experimental method, and I assume that there are 2 types of job size
   public void fixedPriority(ASPair newPair){
     int priority = 1;
-    if(newPair.size < ApplicationMasterService.GB * 3){ // the job with 2G dataset is assigned priority 1
+    if(newPair.size == 2){ // the numbers of reducers is 2
       priority = 1;
     }else{
       priority = 2;
@@ -705,7 +704,7 @@ public class ApplicationMasterService extends AbstractService implements
         LOG.info("172.16.100.1:60000 receives " + reduce_info.toString());
         appReduceSize.put(reduce_info.ID, reduce_info);
         //AddASPair(new ASPair(reduce_info.ID, reduce_info.total_size));
-        fixedPriority(new ASPair(reduce_info.ID, reduce_info.total_size));
+        fixedPriority(new ASPair(reduce_info.ID, reduce_info.reduce_num));
         ois.close();
       }catch(IOException e){
         throw new YarnRuntimeException(e);
