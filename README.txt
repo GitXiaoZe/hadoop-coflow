@@ -30,5 +30,5 @@ software:
   Hadoop Core uses the SSL libraries from the Jetty project written 
 by mortbay.org.
 ------------------------------------------------------------
-I implement a simple Coflow Schedule SRCSF(Smallest Remaining Coflow Size First) in hadoop-3.1.1
+I implement a simple Coflow Schedule SRCF(Smallest Remaining Coflow First) in hadoop-3.1.1
 if anyone want to enable it, set "yarn.coflow" to true in yarn-site.xml
