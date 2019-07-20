@@ -601,6 +601,8 @@ class Fetcher<K,V> extends Thread {
         compressedLength = header.compressedLength;
         decompressedLength = header.uncompressedLength;
         forReduce = header.forReduce;
+        LOG.info("hezehao Fetcher id - " +  id + " : mapid = " + mapId.toString() + "; compressedLength = " +
+                compressedLength+"; uncompressedLength = " + decompressedLength + "; reducer id = " + forReduce);
       } catch (IllegalArgumentException e) {
         badIdErrs.increment(1);
         LOG.warn("Invalid map id ", e);
@@ -626,6 +628,7 @@ class Fetcher<K,V> extends Thread {
       
       // Get the location for the map output - either in-memory or on-disk
       try {
+        //InMemoryMapOutput or OnDiskMapOutput
         mapOutput = merger.reserve(mapId, decompressedLength, id);
       } catch (IOException ioe) {
         // kill this reduce attempt

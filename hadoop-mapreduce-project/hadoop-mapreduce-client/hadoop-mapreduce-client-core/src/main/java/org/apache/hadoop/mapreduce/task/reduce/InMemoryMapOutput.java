@@ -88,9 +88,10 @@ class InMemoryMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
     }
   
     try {
-      IOUtils.readFully(input, memory, 0, memory.length);
+      c
       metrics.inputBytes(memory.length);
       reporter.progress();
+
       LOG.info("InMemoryMapOutput: Read " + memory.length + " bytes from map-output for " +
                 getMapId());
 

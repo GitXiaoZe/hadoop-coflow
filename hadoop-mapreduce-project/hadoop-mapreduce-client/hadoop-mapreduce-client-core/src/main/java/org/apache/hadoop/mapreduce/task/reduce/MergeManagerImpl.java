@@ -303,7 +303,9 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     // Allow the in-memory shuffle to progress
     LOG.debug(mapId + ": Proceeding with shuffle since usedMemory ("
         + usedMemory + ") is lesser than memoryLimit (" + memoryLimit + ")."
-        + "CommitMemory is (" + commitMemory + ")"); 
+        + "CommitMemory is (" + commitMemory + ")");
+    LOG.info("hezehao Allow the in-memory shuffle to process : requestedSize = " + (requestedSize>>20)
+            + "; maxSingleShuffleLimit = " + (maxSingleShuffleLimit >> 20)  ) ;
     return unconditionalReserve(mapId, requestedSize, true);
   }
   
