@@ -1823,7 +1823,8 @@ public class MRAppMaster extends CompositeService {
           ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
           MapOutputSize tmp = (MapOutputSize) (ois.readObject());
           LOG.info("Fetcher MapOutputSize : " + tmp);
-          reduceInfos.addAnother(tmp);
+          if(tmp!=null)
+            reduceInfos.addAnother(tmp);
           bw.close();
           ois.close();
           socket.close();
