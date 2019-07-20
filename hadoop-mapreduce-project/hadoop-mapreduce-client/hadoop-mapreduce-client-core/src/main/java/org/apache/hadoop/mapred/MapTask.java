@@ -1876,6 +1876,7 @@ public class MapTask extends Task {
         } else {
           indexCacheList.get(0).writeToFile(
             mapOutputFile.getOutputIndexFileForWriteInVolume(filename[0]), job);
+          indexCacheList.get(0).writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
         }
         sortPhase.complete();
         return;
@@ -1924,6 +1925,7 @@ public class MapTask extends Task {
             sr.putIndex(rec, i);
           }
           sr.writeToFile(finalIndexFile, job);
+          sr.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
         } finally {
           finalOut.close();
           if (finalPartitionOut != null) {
@@ -2004,7 +2006,7 @@ public class MapTask extends Task {
         //spillRec.writeIntermediateOutput(finalIndexFile.getParent().toString() +"_" + InetAddress.getLocalHost().getHostName() +"_output");
         LOG.info("SpillRecord writeToNodeManager");
 
-        spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier()+"_"+mapTask.getJobID().getId());
+        spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
 
         if (finalPartitionOut != null) {
           finalPartitionOut.close();
