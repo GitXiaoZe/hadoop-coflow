@@ -88,7 +88,7 @@ class InMemoryMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
     }
   
     try {
-      c
+      IOUtils.readFully(input, memory, 0, memory.length);
       metrics.inputBytes(memory.length);
       reporter.progress();
 
