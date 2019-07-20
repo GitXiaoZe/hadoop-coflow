@@ -1820,17 +1820,18 @@ public class MRAppMaster extends CompositeService {
           bw.write("pull\n");
           bw.write(reduceInfos.ID + "\n");
           bw.flush();
-          bw.close();
           ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
           MapOutputSize tmp = (MapOutputSize) (ois.readObject());
           LOG.info("Fetcher MapOutputSize : " + tmp);
           reduceInfos.addAnother(tmp);
+          bw.close();
           ois.close();
           socket.close();
         }catch(IOException e){
           e.printStackTrace();
         }catch(ClassNotFoundException e){
           e.printStackTrace();
+        }finally {
         }
       }
 
