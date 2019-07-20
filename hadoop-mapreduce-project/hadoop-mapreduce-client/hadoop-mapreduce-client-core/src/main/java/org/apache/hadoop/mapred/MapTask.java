@@ -1623,6 +1623,7 @@ public class MapTask extends Task {
                   partitions * APPROX_HEADER_LENGTH;
       FSDataOutputStream out = null;
       FSDataOutputStream partitionOut = null;
+      LOG.info("hezehao sortAndSpill");
       try {
         // create spill file
         final SpillRecord spillRec = new SpillRecord(partitions);
@@ -1727,6 +1728,7 @@ public class MapTask extends Task {
       long size = kvbuffer.length + partitions * APPROX_HEADER_LENGTH;
       FSDataOutputStream out = null;
       FSDataOutputStream partitionOut = null;
+      LOG.info("hezehao spillSingleRecord");
       try {
         // create spill file
         final SpillRecord spillRec = new SpillRecord(partitions);
@@ -1877,6 +1879,8 @@ public class MapTask extends Task {
         } else {
           indexCacheList.get(0).writeToFile(
             mapOutputFile.getOutputIndexFileForWriteInVolume(filename[0]), job);
+          LOG.info("hezehao writeToNodeManager in numSpills  = 1");
+          indexCacheList.get(0).writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
         }
         sortPhase.complete();
         LOG.info("hezehao return in numSpills = 1");
@@ -1925,6 +1929,8 @@ public class MapTask extends Task {
             sr.putIndex(rec, i);
           }
           sr.writeToFile(finalIndexFile, job);
+          LOG.info("hezehao writeToNodeManager in numSpills  = 0");
+          sr.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
         } finally {
           finalOut.close();
           if (finalPartitionOut != null) {
@@ -2003,10 +2009,10 @@ public class MapTask extends Task {
         }
         spillRec.writeToFile(finalIndexFile, job);
         finalOut.close();
-        //spillRec.writeIntermediateOutput(finalIndexFile.getParent().toString() +"_" + InetAddress.getLocalHost().getHostName() +"_output");
+
         LOG.info("SpillRecord writeToNodeManager");
 
-        spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier()+"_"+mapTask.getJobID().getId());
+        spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
 
         if (finalPartitionOut != null) {
           finalPartitionOut.close();
