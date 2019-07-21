@@ -84,6 +84,8 @@ class OnDiskMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
     this.fs = fs;
     this.outputPath = outputPath;
     tmpOutputPath = getTempPath(outputPath, fetcher);
+    LOG.info("hezehao OnDiskMapOutput : outputPath = " + outputPath
+              + " ; tmpOutputPath = " + tmpOutputPath);
     disk = CryptoUtils.wrapIfNecessary(conf, fs.create(tmpOutputPath));
   }
 
@@ -97,11 +99,12 @@ class OnDiskMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
                       long compressedLength, long decompressedLength,
                       ShuffleClientMetrics metrics,
                       Reporter reporter) throws IOException {
+    LOG.info("hezehao OnDiskMapOutput begin to do shuffle --" + Thread.currentThread().getName());
     // Copy data to local-disk
     long bytesLeft = compressedLength;
     try {
       final int BYTES_TO_READ = 64 * 1024;
-      byte[] buf = new byte[BYTES_TO_READ];
+      byte[] buf = new byte[BYTES_TO_READ]; //64K
       while (bytesLeft > 0) {
         int n = input.readWithChecksum(buf, 0,
                                       (int) Math.min(bytesLeft, BYTES_TO_READ));

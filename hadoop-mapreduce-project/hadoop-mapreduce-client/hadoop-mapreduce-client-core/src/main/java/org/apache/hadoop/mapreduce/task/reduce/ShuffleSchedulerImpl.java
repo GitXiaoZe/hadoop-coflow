@@ -213,8 +213,6 @@ public class ShuffleSchedulerImpl<K,V> implements ShuffleScheduler<K,V> {
       // update the aggregated status
       copyTimeTracker.add(startMillis, endMillis);
 
-      LOG.info("hezehao - " + individualProgress);
-
       totalBytesShuffledTillNow += bytes;
       updateStatus(individualProgress);
       reduceShuffleBytes.increment(bytes);

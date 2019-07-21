@@ -383,7 +383,7 @@ public class ReduceTask extends Task {
     // free up the data structures
     mapOutputFilesOnDisk.clear();
     
-    sortPhase.complete();                         // sort is complete
+    sortPhase.complete();  // sort is complete
 	taskSortPhaseFinishTime = System.currentTimeMillis();
     setPhase(TaskStatus.Phase.REDUCE); 
     statusUpdate(umbilical);
