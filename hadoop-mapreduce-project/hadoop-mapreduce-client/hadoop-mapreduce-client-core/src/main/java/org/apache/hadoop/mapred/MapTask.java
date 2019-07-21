@@ -75,6 +75,7 @@ import org.apache.hadoop.util.QuickSort;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.StringInterner;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +98,8 @@ public class MapTask extends Task {
 
   private static final Logger LOG =
       LoggerFactory.getLogger(MapTask.class.getName());
+
+  public static  boolean use_coflow = false;
 
   private Progress mapPhase;
   private Progress sortPhase;
@@ -318,7 +321,7 @@ public class MapTask extends Task {
   public void run(final JobConf job, final TaskUmbilicalProtocol umbilical)
     throws IOException, ClassNotFoundException, InterruptedException {
     this.umbilical = umbilical;
-
+    MapTask.use_coflow = job.getBoolean(YarnConfiguration.USE_COFLOW, YarnConfiguration.DEFAULT_USE_COFLOW);
     if (isMapTask()) {
       // If there are no reducers then there won't be any sort. Hence the map 
       // phase will govern the entire attempt's progress.
@@ -1876,7 +1879,9 @@ public class MapTask extends Task {
         } else {
           indexCacheList.get(0).writeToFile(
             mapOutputFile.getOutputIndexFileForWriteInVolume(filename[0]), job);
-          indexCacheList.get(0).writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
+          if(MapTask.use_coflow)
+            indexCacheList.get(0).writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
+
         }
         sortPhase.complete();
         return;
@@ -1925,7 +1930,8 @@ public class MapTask extends Task {
             sr.putIndex(rec, i);
           }
           sr.writeToFile(finalIndexFile, job);
-          sr.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
+          if(MapTask.use_coflow)
+            sr.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
         } finally {
           finalOut.close();
           if (finalPartitionOut != null) {
@@ -2003,11 +2009,10 @@ public class MapTask extends Task {
         }
         spillRec.writeToFile(finalIndexFile, job);
         finalOut.close();
-        //spillRec.writeIntermediateOutput(finalIndexFile.getParent().toString() +"_" + InetAddress.getLocalHost().getHostName() +"_output");
-        LOG.info("SpillRecord writeToNodeManager");
-
-        spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
-
+        if(MapTask.use_coflow) {
+          LOG.info("SpillRecord writeToNodeManager");
+          spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
+        }
         if (finalPartitionOut != null) {
           finalPartitionOut.close();
         }
