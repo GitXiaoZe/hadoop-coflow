@@ -271,7 +271,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
                                              int fetcher
                                              ) throws IOException {
     if (requestedSize > maxSingleShuffleLimit) {
-      LOG.info(mapId + ": Shuffling to disk since " + requestedSize + 
+      LOG.info(mapId + ": Shuffling to on-disk since " + requestedSize +
                " is greater than maxSingleShuffleLimit (" + 
                maxSingleShuffleLimit + ")" + "; Fetcher - " + Thread.currentThread().getName());
       return new OnDiskMapOutput<K,V>(mapId, this, requestedSize, jobConf,

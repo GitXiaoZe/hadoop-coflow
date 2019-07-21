@@ -63,6 +63,10 @@ public class IFileInputStream extends InputStream {
       LoggerFactory.getLogger(IFileInputStream.class);
 
   private boolean disableChecksumValidation = false;
+
+  private int outputCounter;
+  private int id;
+  public static int IFILEIndex = 0;
   
   /**
    * Create a checksum input stream that reads
@@ -77,13 +81,16 @@ public class IFileInputStream extends InputStream {
     checksumSize = sum.getChecksumSize();
     length = len;
     dataLength = length - checksumSize;
-    LOG.info("raPool != null && inFd != null && readahead value" +(raPool != null && inFd != null && readahead));
+
+    id = IFileInputStream.IFILEIndex++;
+    LOG.info("hezehao IFileInputStream  len=" + len +" ; checksum = " + checksumSize +
+            " ; dataLength = " + (length - checksumSize) + "; ifile = " + id+ ";Thread = " + Thread.currentThread().getName());
     conf = (conf != null) ? conf : new Configuration();
     readahead = conf.getBoolean(MRConfig.MAPRED_IFILE_READAHEAD,
         MRConfig.DEFAULT_MAPRED_IFILE_READAHEAD);
     readaheadLength = conf.getInt(MRConfig.MAPRED_IFILE_READAHEAD_BYTES,
         MRConfig.DEFAULT_MAPRED_IFILE_READAHEAD_BYTES);
-
+    outputCounter = 0;
     doReadahead();
   }
 
@@ -154,12 +161,20 @@ public class IFileInputStream extends InputStream {
   }
 
   private void doReadahead() {
-    //LOG.info("hezehao doReadahead-------------------------" + Thread.currentThread().getName());
+    if(outputCounter < 10){
+      outputCounter++;
+      LOG.info("hezehao raPool != null => " + (raPool!=null) + "; inFd != null => "  + (inFd!=null)
+              + "; readahead => " + (readahead) + "; final => " +(raPool != null && inFd != null && readahead) + " ; ifile = " + id +";Thread = " + Thread.currentThread().getName());
+    }
     if (raPool != null && inFd != null && readahead) {
       curReadahead = raPool.readaheadStream(
           "ifile", inFd,
           currentOffset, readaheadLength, dataLength,
           curReadahead);
+    }else{
+      if(outputCounter < 10){
+        LOG.info("hezehao No Readahead ; ifile = " + id+ "Thread" + Thread.currentThread().getName());
+      }
     }
   }
 
