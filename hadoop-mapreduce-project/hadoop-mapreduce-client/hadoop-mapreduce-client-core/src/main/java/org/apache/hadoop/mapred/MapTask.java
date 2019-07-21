@@ -2010,7 +2010,7 @@ public class MapTask extends Task {
         spillRec.writeToFile(finalIndexFile, job);
         finalOut.close();
 
-        LOG.info("SpillRecord writeToNodeManager");
+        LOG.info("hezehao SpillRecord writeToNodeManager numSpill = " + numSpills);
 
         spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
 

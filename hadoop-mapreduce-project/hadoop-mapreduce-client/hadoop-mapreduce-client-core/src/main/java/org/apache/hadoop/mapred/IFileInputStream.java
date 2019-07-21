@@ -154,7 +154,7 @@ public class IFileInputStream extends InputStream {
   }
 
   private void doReadahead() {
-    LOG.info("hezehao doReadahead-------------------------");
+    //LOG.info("hezehao doReadahead-------------------------" + Thread.currentThread().getName());
     if (raPool != null && inFd != null && readahead) {
       curReadahead = raPool.readaheadStream(
           "ifile", inFd,
