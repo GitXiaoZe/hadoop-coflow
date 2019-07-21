@@ -224,6 +224,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
 
     boolean allowMemToMemMerge = 
       jobConf.getBoolean(MRJobConfig.REDUCE_MEMTOMEM_ENABLED, false);
+    LOG.info("hezehao memToMemMerge enable = " + allowMemToMemMerge);
     if (allowMemToMemMerge) {
       this.memToMemMerger = 
         new IntermediateMemoryToMemoryMerger(this,
@@ -294,6 +295,9 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     // all the stalled threads
     
     if (usedMemory > memoryLimit) {
+      LOG.info("hezehao stalling shuffle since usedMemory (" + usedMemory
+              + ") is greater than memoryLimit (" + memoryLimit + ")." +
+              " CommitMemory is (" + commitMemory + ")");
       LOG.debug(mapId + ": Stalling shuffle since usedMemory (" + usedMemory
           + ") is greater than memoryLimit (" + memoryLimit + ")." + 
           " CommitMemory is (" + commitMemory + ")"); 
@@ -305,7 +309,8 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
         + usedMemory + ") is lesser than memoryLimit (" + memoryLimit + ")."
         + "CommitMemory is (" + commitMemory + ")");
     LOG.info("hezehao Allow the in-memory shuffle to process : requestedSize = " + (requestedSize>>20)
-            + "; maxSingleShuffleLimit = " + (maxSingleShuffleLimit >> 20)  ) ;
+            + "; maxSingleShuffleLimit = " + (maxSingleShuffleLimit >> 20)
+            + "; reduce id = " + reduceId.toString() +" fetcher = " + fetcher);
     return unconditionalReserve(mapId, requestedSize, true);
   }
   

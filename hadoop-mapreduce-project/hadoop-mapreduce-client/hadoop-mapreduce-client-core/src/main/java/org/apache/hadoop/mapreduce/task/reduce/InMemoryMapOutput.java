@@ -79,6 +79,7 @@ class InMemoryMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
                       long compressedLength, long decompressedLength,
                       ShuffleClientMetrics metrics,
                       Reporter reporter) throws IOException {
+    LOG.info("hezehao InMemoryMapOutput begin to do shuffle --" + Thread.currentThread().getName());
     InputStream input = iFin;
 
     // Are map-outputs compressed?
@@ -113,6 +114,7 @@ class InMemoryMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
 
   @Override
   public void commit() throws IOException {
+    LOG.info("hezehao InMemoryCommit commit......." + Thread.currentThread().getName());
     getMerger().closeInMemoryFile(this);
   }
   

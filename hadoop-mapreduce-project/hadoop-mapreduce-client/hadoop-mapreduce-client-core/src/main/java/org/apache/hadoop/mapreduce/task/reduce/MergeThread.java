@@ -63,7 +63,7 @@ abstract class MergeThread<T,K,V> extends Thread {
         iter.remove();
       }
       LOG.info(getName() + ": Starting merge with " + toMergeInputs.size() + 
-               " segments, while ignoring " + inputs.size() + " segments");
+               " segments, while ignoring " + inputs.size() + " segments; mergeFactor = " + mergeFactor);
       synchronized(pendingToBeMerged) {
         pendingToBeMerged.addLast(toMergeInputs);
         pendingToBeMerged.notifyAll();

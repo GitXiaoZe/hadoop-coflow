@@ -1094,7 +1094,7 @@ public class ShuffleHandler extends AuxiliaryService {
      */
     public ChannelFuture sendMap(ReduceContext reduceContext)
         throws Exception {
-      LOG.info("hezehao sendMap")
+      LOG.info("hezehao sendMap");
       ChannelFuture nextMap = null;
       if (reduceContext.getMapsToSend().get() <
           reduceContext.getMapIds().size()) {
@@ -1194,7 +1194,7 @@ public class ShuffleHandler extends AuxiliaryService {
       long contentLength = 0;
       for (String mapId : mapIds) {
         MapOutputInfo outputInfo = getMapOutputInfo(mapId, reduce, jobId, user);
-        LOG.info("populate hezehao MapOutputInfo " + outputInfo.mapOutputFileName);
+        LOG.info("populate hezehao MapOutputInfo " + outputInfo.mapOutputFileName + " ; reduce " + reduce);
         if (mapOutputInfoMap.size() < mapOutputMetaInfoCacheSize) {
           mapOutputInfoMap.put(mapId, outputInfo);
         }
@@ -1202,7 +1202,7 @@ public class ShuffleHandler extends AuxiliaryService {
         ShuffleHeader header =
             new ShuffleHeader(mapId, outputInfo.indexRecord.partLength,
             outputInfo.indexRecord.rawLength, reduce);
-        LOG.info("hezehao partLength = " + outputInfo.indexRecord.partLength + " ; rawLength = " + outputInfo.indexRecord.rawLength);
+        LOG.info("hezehao  partLength = " + outputInfo.indexRecord.partLength + " ; rawLength = " + outputInfo.indexRecord.rawLength  +"; reduce = " + reduce);
         DataOutputBuffer dob = new DataOutputBuffer();
         header.write(dob);
 
@@ -1310,7 +1310,7 @@ public class ShuffleHandler extends AuxiliaryService {
       
       final File spillfile =
           new File(mapOutputInfo.mapOutputFileName.toString());
-      LOG.info("sendMapOutput hezehao : mapOutputInfo.mapOutputFileName.toString() = "+ mapOutputInfo.mapOutputFileName.toString());
+      LOG.info("sendMapOutput hezehao : mapOutputInfo.mapOutputFileName.toString() = "+ mapOutputInfo.mapOutputFileName.toString() + "; reduce " + reduce);
       RandomAccessFile spill;
       try {
         spill = SecureIOUtils.openForRandomRead(spillfile, "r", user, null);
