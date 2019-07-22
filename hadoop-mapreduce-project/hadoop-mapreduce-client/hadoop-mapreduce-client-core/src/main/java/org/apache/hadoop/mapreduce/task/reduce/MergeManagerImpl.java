@@ -481,7 +481,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
         mapOutputFile.getInputFileForWrite(mapTaskId,
                                            mergeOutputSize).suffix(
                                                Task.MERGED_OUTPUT_PREFIX);
-
+      LOG.info("hezehao outputPath : " + outputPath + "; mapOutputFile = " + mapOutputFile);
       FSDataOutputStream out = CryptoUtils.wrapIfNecessary(jobConf, rfs.create(outputPath));
       Writer<K, V> writer = new Writer<K, V>(jobConf, out,
           (Class<K>) jobConf.getMapOutputKeyClass(),
@@ -492,7 +492,8 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
       try {
         LOG.info("Initiating in-memory merge with " + noInMemorySegments + 
                  " segments...");
-        
+        LOG.info("hezehao MapOutputKeyClass = " + jobConf.getMapOutputKeyClass().getName()
+                + "; MapOutputValueClass = " + jobConf.getMapOutputValueClass().getName());
         rIter = Merger.merge(jobConf, rfs,
                              (Class<K>)jobConf.getMapOutputKeyClass(),
                              (Class<V>)jobConf.getMapOutputValueClass(),
