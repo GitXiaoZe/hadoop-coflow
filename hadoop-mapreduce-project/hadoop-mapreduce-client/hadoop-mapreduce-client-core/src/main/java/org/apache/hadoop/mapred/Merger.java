@@ -633,7 +633,7 @@ public class Merger {
       //create the MergeStreams from the sorted map created in the constructor
       //and dump the final output to a file
       do {
-        while(hezehao_outer_while < 2) hezehao_outer_while++;
+        if(hezehao_outer_while < 2) hezehao_outer_while++;
         //get the factor for this pass of merge. We assume in-memory segments
         //are the first entries in the segment list and that the pass factor
         //doesn't apply to them
