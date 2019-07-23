@@ -111,6 +111,7 @@ public class IFile {
       this.rawOut = out;
       this.start = this.rawOut.getPos();
       if (codec != null) {
+        LOG.info("hezehao Writer with codec");
         this.compressor = CodecPool.getCompressor(codec);
         if (this.compressor != null) {
           this.compressor.reset();
@@ -122,6 +123,7 @@ public class IFile {
           this.out = new FSDataOutputStream(checksumOut,null);
         }
       } else {
+        LOG.info("hezehao Writer without codec");
         this.out = new FSDataOutputStream(checksumOut,null);
       }
       
@@ -129,6 +131,7 @@ public class IFile {
       this.valueClass = valueClass;
 
       if (keyClass != null) {
+        LOG.info("hezehao Writer with KeySerializer");
         SerializationFactory serializationFactory = 
           new SerializationFactory(conf);
         this.keySerializer = serializationFactory.getSerializer(keyClass);

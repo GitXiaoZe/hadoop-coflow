@@ -503,8 +503,10 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
                              reporter, spilledRecordsCounter, null, null);
         
         if (null == combinerClass) {
+          LOG.info("hezehao without combinerClass");
           Merger.writeFile(rIter, writer, reporter, jobConf);
         } else {
+          LOG.info("hezehao with combinerClass");
           combineCollector.setWriter(writer);
           combineAndSpill(rIter, reduceCombineInputCounter);
         }
