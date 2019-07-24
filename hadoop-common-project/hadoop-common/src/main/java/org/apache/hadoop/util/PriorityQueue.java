@@ -147,7 +147,7 @@ public abstract class PriorityQueue<T> {
       j = i << 1;
       k = j + 1;
       if (k <= size && lessThan(heap[k], heap[j])) {
-	j = k;
+	    j = k;
       }
     }
     heap[i] = node;				  // install saved node

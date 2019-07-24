@@ -176,7 +176,6 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     this.memoryLimit = (long)(jobConf.getLong(
         MRJobConfig.REDUCE_MEMORY_TOTAL_BYTES,
         Runtime.getRuntime().maxMemory()) * maxInMemCopyUse);
-    LOG.info("hezehao MaxMemory = " + (Runtime.getRuntime().maxMemory() >> 20)  + "MB") ;
 
     //The number of streams to merge at once while sorting files
     this.ioSortFactor = jobConf.getInt(MRJobConfig.IO_SORT_FACTOR,
@@ -224,7 +223,6 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
 
     boolean allowMemToMemMerge = 
       jobConf.getBoolean(MRJobConfig.REDUCE_MEMTOMEM_ENABLED, false);
-    LOG.info("hezehao memToMemMerge enable = " + allowMemToMemMerge);
     if (allowMemToMemMerge) {
       this.memToMemMerger = 
         new IntermediateMemoryToMemoryMerger(this,
@@ -271,7 +269,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
                                              int fetcher
                                              ) throws IOException {
     if (requestedSize > maxSingleShuffleLimit) {
-      LOG.info(mapId + ": Shuffling to On-Disk since " + requestedSize +
+      LOG.info(mapId + ": Shuffling to On Disk since " + requestedSize +
                " is greater than maxSingleShuffleLimit (" + 
                maxSingleShuffleLimit + ")" + "; Fetcher - " + Thread.currentThread().getName());
       return new OnDiskMapOutput<K,V>(mapId, this, requestedSize, jobConf,
@@ -481,7 +479,6 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
         mapOutputFile.getInputFileForWrite(mapTaskId,
                                            mergeOutputSize).suffix(
                                                Task.MERGED_OUTPUT_PREFIX);
-      LOG.info("hezehao outputPath : " + outputPath + "; mapOutputFile = " + mapOutputFile);
       FSDataOutputStream out = CryptoUtils.wrapIfNecessary(jobConf, rfs.create(outputPath));
       Writer<K, V> writer = new Writer<K, V>(jobConf, out,
           (Class<K>) jobConf.getMapOutputKeyClass(),
@@ -492,8 +489,6 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
       try {
         LOG.info("Initiating in-memory merge with " + noInMemorySegments + 
                  " segments...");
-        LOG.info("hezehao MapOutputKeyClass = " + jobConf.getMapOutputKeyClass().getName()
-                + "; MapOutputValueClass = " + jobConf.getMapOutputValueClass().getName());
         rIter = Merger.merge(jobConf, rfs,
                              (Class<K>)jobConf.getMapOutputKeyClass(),
                              (Class<V>)jobConf.getMapOutputValueClass(),

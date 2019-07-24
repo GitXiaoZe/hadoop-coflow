@@ -85,7 +85,7 @@ class OnDiskMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
     this.outputPath = outputPath;
     tmpOutputPath = getTempPath(outputPath, fetcher);
     LOG.info("hezehao OnDiskMapOutput : outputPath = " + outputPath
-              + " ; tmpOutputPath = " + tmpOutputPath);
+              + " ; tmpOutputPath = " + tmpOutputPath + "; FileSystem = " + fs.toString());
     disk = CryptoUtils.wrapIfNecessary(conf, fs.create(tmpOutputPath));
   }
 

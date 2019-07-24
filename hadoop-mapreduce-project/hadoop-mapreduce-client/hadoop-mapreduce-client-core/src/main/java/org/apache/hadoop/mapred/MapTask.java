@@ -1627,7 +1627,6 @@ public class MapTask extends Task {
                   partitions * APPROX_HEADER_LENGTH;
       FSDataOutputStream out = null;
       FSDataOutputStream partitionOut = null;
-      LOG.info("hezehao sortAndSpill");
       try {
         // create spill file
         final SpillRecord spillRec = new SpillRecord(partitions);
@@ -1732,7 +1731,6 @@ public class MapTask extends Task {
       long size = kvbuffer.length + partitions * APPROX_HEADER_LENGTH;
       FSDataOutputStream out = null;
       FSDataOutputStream partitionOut = null;
-      LOG.info("hezehao spillSingleRecord");
       try {
         // create spill file
         final SpillRecord spillRec = new SpillRecord(partitions);
@@ -1863,13 +1861,11 @@ public class MapTask extends Task {
 
     private void mergeParts() throws IOException, InterruptedException, 
                                      ClassNotFoundException {
-      LOG.info("hezehao merge parts begin to exection");
       // get the approximate size of the final output/index files
       long finalOutFileSize = 0;
       long finalIndexFileSize = 0;
       final Path[] filename = new Path[numSpills];
       final TaskAttemptID mapId = getTaskID();
-      LOG.info("hezehao numSpills = " + numSpills);
       for(int i = 0; i < numSpills; i++) {
         filename[i] = mapOutputFile.getSpillFile(i);
         finalOutFileSize += rfs.getFileStatus(filename[i]).getLen();
@@ -1884,12 +1880,10 @@ public class MapTask extends Task {
           indexCacheList.get(0).writeToFile(
             mapOutputFile.getOutputIndexFileForWriteInVolume(filename[0]), job);
           if(MapTask.use_coflow){
-            LOG.info("hezehao writeToNodeManager in numSpills  = 1, use_coflow");
             indexCacheList.get(0).writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
           }
         }
         sortPhase.complete();
-        LOG.info("hezehao return in numSpills = 1");
         return;
       }
 
@@ -1936,7 +1930,6 @@ public class MapTask extends Task {
           }
           sr.writeToFile(finalIndexFile, job);
           if(MapTask.use_coflow){
-            LOG.info("hezehao writeToNodeManager in numSpills  = 0, use_coflow");
             sr.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
           }
         } finally {
@@ -1946,7 +1939,6 @@ public class MapTask extends Task {
           }
         }
         sortPhase.complete();
-        LOG.info("hezehao return in numSpills = 0");
         return;
       }
       {
@@ -2018,7 +2010,6 @@ public class MapTask extends Task {
         spillRec.writeToFile(finalIndexFile, job);
         finalOut.close();
         if(MapTask.use_coflow) {
-          LOG.info("use_coflow hezehao SpillRecord writeToNodeManager numSpill = " + numSpills);
           spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
         }
         if (finalPartitionOut != null) {

@@ -486,7 +486,6 @@ class Fetcher<K,V> extends Thread {
         field.setAccessible(true);
         socket = (Socket)field.get(httpClient);
         socket.setTrafficClass(priority << 2);
-        LOG.info("hezehao " + socket.getInetAddress().getHostAddress() + "\'s priority: " + priority);
       }
       catch(NoSuchFieldException e) {
         LOG.error("no such Field exception. " + e);
@@ -601,8 +600,6 @@ class Fetcher<K,V> extends Thread {
         compressedLength = header.compressedLength;
         decompressedLength = header.uncompressedLength;
         forReduce = header.forReduce;
-        LOG.info("hezehao Fetcher id - " +  id + " : mapid = " + mapId.toString() + "; compressedLength = " +
-                compressedLength+"; uncompressedLength = " + decompressedLength + "; reducer id = " + forReduce);
       } catch (IllegalArgumentException e) {
         badIdErrs.increment(1);
         LOG.warn("Invalid map id ", e);
@@ -784,9 +781,7 @@ class Fetcher<K,V> extends Thread {
     }
 
     url.append("&priority=" + priority);
-   
-    // LOG.debug("MapOutput URL for " + host + " -> " + url.toString());
-    LOG.info("hezehao MapOutput URL for " + host + " -> " + url.toString());
+
     return new URL(url.toString());
   }
   
