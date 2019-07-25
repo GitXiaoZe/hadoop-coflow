@@ -559,7 +559,6 @@ public class Merger {
       long startPos = minSegment.getReader().bytesRead;
       key = minSegment.getKey();
       if (!minSegment.inMemory()) {
-        LOG.info("hezehao Merge OnDisk");
         //When we load the value from an inmemory segment, we reset
         //the "value" DIB in this class to the inmem segment's byte[].
         //When we load the value bytes from disk, we shouldn't use
@@ -572,7 +571,6 @@ public class Merger {
         minSegment.getValue(diskIFileValue);
         value.reset(diskIFileValue.getData(), diskIFileValue.getLength());
       } else {
-        LOG.info("hezehao Merge inMemory");
         minSegment.getValue(value);
       }
       long endPos = minSegment.getReader().bytesRead;
