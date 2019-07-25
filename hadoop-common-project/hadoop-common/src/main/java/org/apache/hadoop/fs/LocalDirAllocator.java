@@ -99,8 +99,7 @@ public class LocalDirAllocator {
                     (l = new AllocatorPerContext(contextCfgItemName)));
       }
       return l;
-    }                            (Class<V>) jobConf.getMapOutputValueClass(),
-
+    }
   }
   
   /** Get a path from the local FS. This method should be used if the size of 
