@@ -79,7 +79,7 @@ class InMemoryMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
                       long compressedLength, long decompressedLength,
                       ShuffleClientMetrics metrics,
                       Reporter reporter) throws IOException {
-    LOG.info("hezehao-InMemory begin to do shuffle");
+
     InputStream input = iFin;
 
     // Are map-outputs compressed?

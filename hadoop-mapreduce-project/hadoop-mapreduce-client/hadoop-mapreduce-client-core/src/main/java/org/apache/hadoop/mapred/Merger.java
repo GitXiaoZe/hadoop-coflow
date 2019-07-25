@@ -627,16 +627,9 @@ public class Merger {
         progPerByte = 1.0f / (float)totalBytes;
       }
 
-      int hezheao_factor = factor;
-      int hezehao_numSegments = numSegments;
-      int hezehao_inMem = inMem;
-      int hezehao_inner_while = 0;
-      int hezehao_outer_while = 0;
-
       //create the MergeStreams from the sorted map created in the constructor
       //and dump the final output to a file
       do {
-        if(hezehao_outer_while < 2) hezehao_outer_while++;
         //get the factor for this pass of merge. We assume in-memory segments
         //are the first entries in the segment list and that the pass factor
         //doesn't apply to them
@@ -650,9 +643,6 @@ public class Merger {
         int numSegmentsToConsider = factor;
         long startBytes = 0; // starting bytes of segments of this merge
         while (true) {
-          if(hezehao_inner_while < 2){
-            hezehao_inner_while++;
-          }
           //extract the smallest 'factor' number of segments  
           //Call cleanup on the empty segments (no key/value data)
           List<Segment<K, V>> mStream = 
@@ -719,12 +709,8 @@ public class Merger {
           LOG.info("Down to the last merge-pass, with " + numSegments + 
                    " segments left of total size: " +
                    (totalBytes - totalBytesProcessed) + " bytes");
-          LOG.info("hezehao Thread " + Thread.currentThread().getName() +" ; hezehao-factor = " + hezheao_factor +
-                  "; segments = " + hezehao_numSegments + "; inMem = " + hezehao_inMem +
-                  "; inner_while = " + hezehao_inner_while + "; outer_while = " + hezehao_outer_while);
           return this;
         } else {
-          LOG.info("hezehao begin to OnDiskMerge");
           LOG.info("Merging " + segmentsToMerge.size() + 
                    " intermediate segments out of a total of " + 
                    (segments.size()+segmentsToMerge.size()));

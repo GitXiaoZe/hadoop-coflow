@@ -57,6 +57,7 @@ import org.apache.hadoop.mapreduce.CryptoUtils;
 import org.apache.hadoop.mapreduce.task.reduce.MapOutput.MapOutputComparator;
 import org.apache.hadoop.util.Progress;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.apache.hadoop.util.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,7 +270,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
                                              int fetcher
                                              ) throws IOException {
     if (requestedSize > maxSingleShuffleLimit) {
-      LOG.info("hezehao reduceid = " + reduceId+ "; hezehao-on-disk  requestedSize = " + ( requestedSize >> 20 ) + "M");
+      LOG.info("hezehao-reduceid = " + reduceId+ "; hezehao-on-disk  requestedSize = " + ( requestedSize >> 20 ) + "M");
       return new OnDiskMapOutput<K,V>(mapId, this, requestedSize, jobConf,
          fetcher, true, FileSystem.getLocal(jobConf).getRaw(),
          mapOutputFile.getInputFileForWrite(mapId.getTaskID(), requestedSize));
@@ -291,9 +292,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     // all the stalled threads
     
     if (usedMemory > memoryLimit) {
-      LOG.info("hezehao reduceid = " + reduceId + "; hezehao stalling shuffle since usedMemory (" + usedMemory
-              + ") is greater than memoryLimit (" + memoryLimit + ")." +
-              " CommitMemory is (" + commitMemory + ")");
+      LOG.info("hezehao-reduceid = " + reduceId + "; hezehao-stalling-shuffle requestedSize = " + (requestedSize>>20) + "M");
       LOG.debug(mapId + ": Stalling shuffle since usedMemory (" + usedMemory
           + ") is greater than memoryLimit (" + memoryLimit + ")." + 
           " CommitMemory is (" + commitMemory + ")"); 
@@ -304,7 +303,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     LOG.debug(mapId + ": Proceeding with shuffle since usedMemory ("
         + usedMemory + ") is lesser than memoryLimit (" + memoryLimit + ")."
         + "CommitMemory is (" + commitMemory + ")");
-    LOG.info("hezehao reduceid " +reduceId+ "; hezehao-in-memory requestedSize = " + (requestedSize>>20) + "M");
+    LOG.info("hezehao-reduceid " +reduceId+ "; hezehao-in-memory requestedSize = " + (requestedSize>>20) + "M");
     return unconditionalReserve(mapId, requestedSize, true);
   }
   
@@ -356,7 +355,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
              ", inMemoryMergedMapOutputs.size() -> " + 
              inMemoryMergedMapOutputs.size());
   }
-
+in
 
 
 
@@ -453,7 +452,8 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
       if (inputs == null || inputs.size() == 0) {
         return;
       }
-      
+
+      long startTime = Time.monotonicNow();
       //name this output file same as the name of the first file that is 
       //there in the current list of inmem files (this is guaranteed to
       //be absent on the disk currently. So we don't overwrite a prev. 
@@ -517,8 +517,9 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
 
       // Note the output of the merge
       closeOnDiskFile(compressAwarePath);
+      long stopTime = Time.monotonicNow();
+      LOG.info("hezehao inMemoryMerge time = " + (stopTime - startTime) +" ; size = " + (mergeOutputSize>>20) +"M");
     }
-
   }
   
   private class OnDiskMerger extends MergeThread<CompressAwarePath,K,V> {
@@ -557,7 +558,6 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
       Path outputPath = 
         localDirAllocator.getLocalPathForWrite(inputs.get(0).toString(), 
             approxOutputSize, jobConf).suffix(Task.MERGED_OUTPUT_PREFIX);
-      LOG.info("hezehao OnDiskMerger outputPath = " + outputPath.toString());
 
       FSDataOutputStream out = CryptoUtils.wrapIfNecessary(jobConf, rfs.create(outputPath));
       Writer<K, V> writer = new Writer<K, V>(jobConf, out,

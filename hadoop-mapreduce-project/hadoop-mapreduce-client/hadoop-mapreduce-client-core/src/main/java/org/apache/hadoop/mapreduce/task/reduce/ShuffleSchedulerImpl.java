@@ -209,10 +209,8 @@ public class ShuffleSchedulerImpl<K,V> implements ShuffleScheduler<K,V> {
           + " at " + mbpsFormat.format(transferRate) + " MB/s)";
       // update the aggregated status
       copyTimeTracker.add(startMillis, endMillis);
-      synchronized (ReduceTask.hezehao_shuffle_time){
-        ReduceTask.hezehao_shuffle_time += copyMillis;
-      }
-      LOG.info("hezehao shuffle time = " + copyMillis + "; bytes = " + (bytes>>20));
+
+      LOG.info("hezehao shuffle bytes = " + (bytes>>20) + " M; time = " + copyMillis +" ms");
 
       totalBytesShuffledTillNow += bytes;
       updateStatus(individualProgress);

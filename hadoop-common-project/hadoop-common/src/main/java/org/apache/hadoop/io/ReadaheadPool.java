@@ -132,7 +132,7 @@ public class ReadaheadPool {
         // we've reached the end of the stream
         return null;
       }
-      if(hezehao_cnt < 10){
+      if(hezehao_cnt < 1000){
          LOG.info("hezehao readahead : fd = " + fd + "; curPos  = " + curPos + " length = " + length);
          hezehao_cnt++;
       }

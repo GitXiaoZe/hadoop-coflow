@@ -93,7 +93,7 @@ public class ReduceTask extends Task {
   private long taskSortPhaseFinishTime;
   private long taskReducePhaseFinishTime;
 
-  public static Long hezehao_shuffle_time = new Long(0);
+
 
 
   private Counters.Counter shuffledMapsCounter = 
