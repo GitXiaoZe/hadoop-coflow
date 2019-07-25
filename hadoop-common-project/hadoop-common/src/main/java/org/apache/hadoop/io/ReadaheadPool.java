@@ -134,6 +134,7 @@ public class ReadaheadPool {
       }
       if(hezehao_cnt < 10){
          LOG.info("hezehao readahead : curPos  = " + curPos + " fd = " + fd);
+         hezehao_cnt++;
       }
       return submitReadahead(identifier, fd, curPos, length);
     } else {
