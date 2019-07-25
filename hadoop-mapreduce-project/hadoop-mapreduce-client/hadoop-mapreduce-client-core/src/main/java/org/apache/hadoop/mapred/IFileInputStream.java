@@ -79,14 +79,14 @@ public class IFileInputStream extends InputStream {
     checksumSize = sum.getChecksumSize();
     length = len;
     dataLength = length - checksumSize;
-    LOG.info("hezehao On-Disk (raPool != null) = " + (raPool!=null) + " ; ( inFd != null ) = " + (inFd!=null)
-              + " ; readahead = " + readahead + " total = " + (raPool != null && inFd != null && readahead) );
+
     conf = (conf != null) ? conf : new Configuration();
     readahead = conf.getBoolean(MRConfig.MAPRED_IFILE_READAHEAD,
         MRConfig.DEFAULT_MAPRED_IFILE_READAHEAD);
     readaheadLength = conf.getInt(MRConfig.MAPRED_IFILE_READAHEAD_BYTES,
         MRConfig.DEFAULT_MAPRED_IFILE_READAHEAD_BYTES);
-
+    LOG.info("hezehao On-Disk (raPool != null) = " + (raPool!=null) + " ; ( inFd != null ) = " + (inFd!=null)
+            + " ; readahead = " + readahead + " total = " + (raPool != null && inFd != null && readahead) + "; inFd = " + inFd);
     doReadahead();
   }
 

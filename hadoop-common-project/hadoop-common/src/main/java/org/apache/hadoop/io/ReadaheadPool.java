@@ -133,7 +133,7 @@ public class ReadaheadPool {
         return null;
       }
       if(hezehao_cnt < 10){
-         LOG.info("hezehao readahead : curPos  = " + curPos + " fd = " + fd);
+         LOG.info("hezehao readahead : fd = " + fd + "; curPos  = " + curPos + " length = " + length);
          hezehao_cnt++;
       }
       return submitReadahead(identifier, fd, curPos, length);

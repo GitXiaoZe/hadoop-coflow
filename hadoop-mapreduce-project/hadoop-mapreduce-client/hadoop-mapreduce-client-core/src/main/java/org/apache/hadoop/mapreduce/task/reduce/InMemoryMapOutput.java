@@ -114,7 +114,6 @@ class InMemoryMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
 
   @Override
   public void commit() throws IOException {
-    LOG.info("hezehao InMemoryCommit commit......." + Thread.currentThread().getName());
     getMerger().closeInMemoryFile(this);
   }
   

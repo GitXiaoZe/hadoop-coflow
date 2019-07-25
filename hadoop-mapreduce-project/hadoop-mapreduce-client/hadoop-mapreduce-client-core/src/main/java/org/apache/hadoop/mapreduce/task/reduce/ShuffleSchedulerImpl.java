@@ -39,10 +39,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapred.Counters;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.TaskCompletionEvent;
-import org.apache.hadoop.mapred.TaskStatus;
+import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.TaskID;
@@ -212,6 +209,10 @@ public class ShuffleSchedulerImpl<K,V> implements ShuffleScheduler<K,V> {
           + " at " + mbpsFormat.format(transferRate) + " MB/s)";
       // update the aggregated status
       copyTimeTracker.add(startMillis, endMillis);
+      synchronized (ReduceTask.hezehao_shuffle_time){
+        ReduceTask.hezehao_shuffle_time += copyMillis;
+      }
+      LOG.info("hezehao shuffle time = " + copyMillis + "; bytes = " + (bytes>>20));
 
       totalBytesShuffledTillNow += bytes;
       updateStatus(individualProgress);

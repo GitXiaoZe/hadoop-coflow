@@ -269,7 +269,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
                                              int fetcher
                                              ) throws IOException {
     if (requestedSize > maxSingleShuffleLimit) {
-      LOG.info("hezehao-on-disk  requestedSize = " + ( requestedSize >> 20 ) + "M");
+      LOG.info("hezehao reduceid = " + reduceId+ "; hezehao-on-disk  requestedSize = " + ( requestedSize >> 20 ) + "M");
       return new OnDiskMapOutput<K,V>(mapId, this, requestedSize, jobConf,
          fetcher, true, FileSystem.getLocal(jobConf).getRaw(),
          mapOutputFile.getInputFileForWrite(mapId.getTaskID(), requestedSize));
@@ -291,7 +291,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     // all the stalled threads
     
     if (usedMemory > memoryLimit) {
-      LOG.info("hezehao stalling shuffle since usedMemory (" + usedMemory
+      LOG.info("hezehao reduceid = " + reduceId + "; hezehao stalling shuffle since usedMemory (" + usedMemory
               + ") is greater than memoryLimit (" + memoryLimit + ")." +
               " CommitMemory is (" + commitMemory + ")");
       LOG.debug(mapId + ": Stalling shuffle since usedMemory (" + usedMemory
@@ -304,7 +304,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     LOG.debug(mapId + ": Proceeding with shuffle since usedMemory ("
         + usedMemory + ") is lesser than memoryLimit (" + memoryLimit + ")."
         + "CommitMemory is (" + commitMemory + ")");
-    LOG.info("hezehao-in-memory requestedSize = " + (requestedSize>>20) + "M");
+    LOG.info("hezehao reduceid " +reduceId+ "; hezehao-in-memory requestedSize = " + (requestedSize>>20) + "M");
     return unconditionalReserve(mapId, requestedSize, true);
   }
   

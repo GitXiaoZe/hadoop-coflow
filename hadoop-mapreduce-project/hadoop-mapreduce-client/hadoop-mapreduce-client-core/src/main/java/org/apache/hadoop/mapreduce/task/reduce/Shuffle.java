@@ -182,7 +182,7 @@ public class Shuffle<K, V> implements ShuffleConsumerPlugin<K, V>, ExceptionRepo
     for (Fetcher<K,V> fetcher : fetchers) {
       fetcher.shutDown();
     }
-    
+    LOG.info("hezehao shuffle time = " + ReduceTask.hezehao_shuffle_time);
     // stop the scheduler
     scheduler.close();
 

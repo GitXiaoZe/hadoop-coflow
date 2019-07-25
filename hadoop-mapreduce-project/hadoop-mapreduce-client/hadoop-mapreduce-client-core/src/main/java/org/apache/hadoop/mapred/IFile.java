@@ -124,7 +124,6 @@ public class IFile {
       } else {
         this.out = new FSDataOutputStream(checksumOut,null);
       }
-      LOG.info("hezehao Writer.out " + out.getClass().getName());
       this.keyClass = keyClass;
       this.valueClass = valueClass;
 
