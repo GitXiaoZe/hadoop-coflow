@@ -130,7 +130,7 @@ public class ReadaheadPool {
         // we've reached the end of the stream
         return null;
       }
-      
+      LOG.info("hezehao readahead : curPos  = " + curPos);
       return submitReadahead(identifier, fd, curPos, length);
     } else {
       return lastReadahead;

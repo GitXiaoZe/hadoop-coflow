@@ -726,6 +726,7 @@ public class Merger {
                   "; inner_while = " + hezehao_inner_while + "; outer_while = " + hezehao_outer_while);
           return this;
         } else {
+          LOG.info("hezehao begin to OnDiskMerge");
           LOG.info("Merging " + segmentsToMerge.size() + 
                    " intermediate segments out of a total of " + 
                    (segments.size()+segmentsToMerge.size()));

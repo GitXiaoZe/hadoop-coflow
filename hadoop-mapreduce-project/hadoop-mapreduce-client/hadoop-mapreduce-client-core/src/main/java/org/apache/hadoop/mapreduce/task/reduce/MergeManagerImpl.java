@@ -269,9 +269,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
                                              int fetcher
                                              ) throws IOException {
     if (requestedSize > maxSingleShuffleLimit) {
-      LOG.info(mapId + ": Shuffling to On Disk since " + requestedSize +
-               " is greater than maxSingleShuffleLimit (" + 
-               maxSingleShuffleLimit + ")" + "; Fetcher - " + Thread.currentThread().getName());
+      LOG.info("hezehao-on-disk  requestedSize = " + ( requestedSize >> 20 ) + "M");
       return new OnDiskMapOutput<K,V>(mapId, this, requestedSize, jobConf,
          fetcher, true, FileSystem.getLocal(jobConf).getRaw(),
          mapOutputFile.getInputFileForWrite(mapId.getTaskID(), requestedSize));
@@ -306,9 +304,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     LOG.debug(mapId + ": Proceeding with shuffle since usedMemory ("
         + usedMemory + ") is lesser than memoryLimit (" + memoryLimit + ")."
         + "CommitMemory is (" + commitMemory + ")");
-    LOG.info("hezehao Allow the in-memory shuffle to process : requestedSize = " + (requestedSize>>20)
-            + "; maxSingleShuffleLimit = " + (maxSingleShuffleLimit >> 20)
-            + "; reduce id = " + reduceId.toString() +" fetcher = " + fetcher);
+    LOG.info("hezehao-in-memory requestedSize = " + (requestedSize>>20) + "M");
     return unconditionalReserve(mapId, requestedSize, true);
   }
   
@@ -498,10 +494,8 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
                              reporter, spilledRecordsCounter, null, null);
         
         if (null == combinerClass) {
-          LOG.info("hezehao without combinerClass");
           Merger.writeFile(rIter, writer, reporter, jobConf);
         } else {
-          LOG.info("hezehao with combinerClass");
           combineCollector.setWriter(writer);
           combineAndSpill(rIter, reduceCombineInputCounter);
         }
@@ -563,6 +557,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
       Path outputPath = 
         localDirAllocator.getLocalPathForWrite(inputs.get(0).toString(), 
             approxOutputSize, jobConf).suffix(Task.MERGED_OUTPUT_PREFIX);
+      LOG.info("hezehao OnDiskMerger outputPath = " + outputPath.toString());
 
       FSDataOutputStream out = CryptoUtils.wrapIfNecessary(jobConf, rfs.create(outputPath));
       Writer<K, V> writer = new Writer<K, V>(jobConf, out,

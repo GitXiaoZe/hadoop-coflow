@@ -99,7 +99,7 @@ class OnDiskMapOutput<K, V> extends IFileWrappedMapOutput<K, V> {
                       long compressedLength, long decompressedLength,
                       ShuffleClientMetrics metrics,
                       Reporter reporter) throws IOException {
-    LOG.info("hezehao OnDiskMapOutput begin to do shuffle --" + Thread.currentThread().getName());
+    LOG.info("hezehao-OnDisk begin to do shuffle");
     // Copy data to local-disk
     long bytesLeft = compressedLength;
     try {
