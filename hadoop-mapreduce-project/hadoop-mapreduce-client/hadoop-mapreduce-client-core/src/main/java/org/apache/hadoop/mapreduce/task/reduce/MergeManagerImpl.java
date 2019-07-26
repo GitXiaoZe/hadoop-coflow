@@ -517,7 +517,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
       // Note the output of the merge
       closeOnDiskFile(compressAwarePath);
       long stopTime = Time.monotonicNow();
-      LOG.info("hezehao inMemoryMerge time = " + (stopTime - startTime) +" ; size = " + (mergeOutputSize>>20) +"M");
+      LOG.info("hezehao-inMemoryMerge time = " + (stopTime - startTime) +" ; size = " + (mergeOutputSize>>20) +"M");
     }
   }
   
@@ -536,7 +536,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
         LOG.info("No ondisk files to merge...");
         return;
       }
-      
+      long startTime = Time.monotonicNow();
       long approxOutputSize = 0;
       int bytesPerSum = 
         jobConf.getInt("io.bytes.per.checksum", 512);
@@ -593,6 +593,8 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
           approxOutputSize + "." + 
           " Local output file is " + outputPath + " of size " +
           localFS.getFileStatus(outputPath).getLen());
+      long stopTime = Time.monotonicNow();
+      LOG.info("hezehao-onDiskMerge time = " + (stopTime - startTime) +" ; size = " + (approxOutputSize>>20) +"M");
     }
   }
   

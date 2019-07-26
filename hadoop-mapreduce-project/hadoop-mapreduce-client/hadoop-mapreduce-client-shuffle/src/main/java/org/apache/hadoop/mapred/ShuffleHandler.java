@@ -1299,8 +1299,6 @@ public class ShuffleHandler extends AuxiliaryService {
       final IndexRecord info = mapOutputInfo.indexRecord;
       final ShuffleHeader header =
         new ShuffleHeader(mapId, info.partLength, info.rawLength, reduce);
-      LOG.info("NM hezehao : ShuffleHeader : mapid = "+ mapId + ";partLength = " + info.partLength +
-              ";rawLength = " + info.rawLength +" ; reduce " + reduce  );
       final DataOutputBuffer dob = new DataOutputBuffer();
       header.write(dob);
       ch.write(wrappedBuffer(dob.getData(), 0, dob.getLength()));

@@ -85,8 +85,6 @@ public class IFileInputStream extends InputStream {
         MRConfig.DEFAULT_MAPRED_IFILE_READAHEAD);
     readaheadLength = conf.getInt(MRConfig.MAPRED_IFILE_READAHEAD_BYTES,
         MRConfig.DEFAULT_MAPRED_IFILE_READAHEAD_BYTES);
-    LOG.info("hezehao On-Disk (raPool != null) = " + (raPool!=null) + " ; ( inFd != null ) = " + (inFd!=null)
-            + " ; readahead = " + readahead + " total = " + (raPool != null && inFd != null && readahead) + "; inFd = " + inFd);
     doReadahead();
   }
 

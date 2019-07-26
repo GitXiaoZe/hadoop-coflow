@@ -48,7 +48,6 @@ public class ReadaheadPool {
   
   private static ReadaheadPool instance;
 
-  public int hezehao_cnt = 0;
 
   /**
    * Return the singleton instance for the current process.
@@ -132,10 +131,7 @@ public class ReadaheadPool {
         // we've reached the end of the stream
         return null;
       }
-      if(hezehao_cnt < 1000){
-         LOG.info("hezehao readahead : fd = " + fd + "; curPos  = " + curPos + " length = " + length);
-         hezehao_cnt++;
-      }
+
       return submitReadahead(identifier, fd, curPos, length);
     } else {
       return lastReadahead;
