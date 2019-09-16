@@ -224,11 +224,13 @@ class Fetcher<K,V> extends Thread {
 
       LOG.info("Fetcher exit while ");
       if(use_coflow){
+        /*
         LOG.info("Fetcher-"+id+" begins to shutdown");
         synchronized (((Shuffle)exceptionReporter).wfThread){
           ((Shuffle)exceptionReporter).wfThread.UpFetcherFlag(id);
           ((Shuffle)exceptionReporter).wfThread.notify();
         }
+        */
         LOG.info("Fetcher-"+id+" have shutdown");
       }else{
         LOG.info("Fetcher coflow" + use_coflow);
@@ -237,11 +239,13 @@ class Fetcher<K,V> extends Thread {
     } catch (InterruptedException ie) {
       LOG.info("Fetcher exit Interrupted");
       if(use_coflow){
+        /*
         LOG.info("Fetcher-"+id+" begins to shutdown");
         synchronized (((Shuffle)exceptionReporter).wfThread){
           ((Shuffle)exceptionReporter).wfThread.UpFetcherFlag(id);
           ((Shuffle)exceptionReporter).wfThread.notify();
         }
+         */
         LOG.info("Fetcher-"+id+" have shutdown");
       }else{
         LOG.info("Fetcher coflow" + use_coflow);
@@ -350,6 +354,7 @@ class Fetcher<K,V> extends Thread {
     retryStartTime = 0;
 
     if(use_coflow){
+      /*
       final Map<String, List<String>> q = new QueryStringDecoder(host.getBaseUrl()).getParameters();
       //final List<String> reduceQ = q.get("reduce");
       final List<String> jobQ = q.get("job");
@@ -379,6 +384,7 @@ class Fetcher<K,V> extends Thread {
           throw new YarnRuntimeException(e);
         }
       }
+      */
     }
 
 
@@ -475,6 +481,7 @@ class Fetcher<K,V> extends Thread {
     }
 
     if(use_coflow) {
+      /*
       try {
         Field field = connection.getClass().getDeclaredField("http");
         field.setAccessible(true);
@@ -491,6 +498,7 @@ class Fetcher<K,V> extends Thread {
       catch(IllegalAccessException e) {
         LOG.error("illeagal access exception." + e);
       }
+       */
     }
     verifyConnection(url, msgToEncode, encHash);
   }

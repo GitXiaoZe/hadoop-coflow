@@ -485,14 +485,14 @@ public class NodeManager extends CompositeService
       dscp_table = new ConcurrentHashMap<>();
       localMapOutput = new HashMap<>();
 
-      ReceiveDscpFromRMThread updateDscpThread = new ReceiveDscpFromRMThread();
+      //ReceiveDscpFromRMThread updateDscpThread = new ReceiveDscpFromRMThread();
       ReceiveMapOutputThread receiveMapOutputThread = new ReceiveMapOutputThread();
-      NodeDscpInfoThread nodeDscpInfoThread = new NodeDscpInfoThread();
+      //NodeDscpInfoThread nodeDscpInfoThread = new NodeDscpInfoThread();
 
 
-      updateDscpThread.start();
+      //updateDscpThread.start();
       receiveMapOutputThread.start();
-      nodeDscpInfoThread.start();
+      //nodeDscpInfoThread.start();
     }
 
     super.serviceInit(conf);

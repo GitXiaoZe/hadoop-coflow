@@ -140,11 +140,9 @@ public class Shuffle<K, V> implements ShuffleConsumerPlugin<K, V>, ExceptionRepo
       fetchers[0].start();
     } else {
       if(use_coflow){
-        wfThread = new WaitForFetcherFinishThread(numFetchers,
-                reduceTask.getJobID().getJtIdentifier() + "_" + reduceTask.getJobID().getId(),
-                reduceTask.getTaskID().getTaskID().getId());
-        wfThread.start();
-        LOG.info("WaitForFetcherFinishedThread : job_id is " + wfThread.job_id +"; task id is " + wfThread.reducer_id);
+        //wfThread = new WaitForFetcherFinishThread(numFetchers,reduceTask.getJobID().getJtIdentifier() + "_" + reduceTask.getJobID().getId(), reduceTask.getTaskID().getTaskID().getId());
+        //wfThread.start();
+        //LOG.info("WaitForFetcherFinishedThread : job_id is " + wfThread.job_id +"; task id is " + wfThread.reducer_id);
         for (int i = 0; i < numFetchers; ++i) {
           fetchers[i] = new Fetcher<K, V>(jobConf, reduceId, scheduler, merger,
                   reporter, metrics, this,

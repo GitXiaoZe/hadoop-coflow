@@ -149,8 +149,8 @@ public class ApplicationMasterService extends AbstractService implements
       coflow_table_index = 0;
       coflow_table = new ASPair[coflow_table_max]; //assume there are 50 jobs at most
       reduceScheduleAddress = new InetSocketAddress("172.16.100.1", 60000);
-      ReduceScheduleThread2 reduceScheduleThread = new ReduceScheduleThread2();
-      reduceScheduleThread.start();
+      //ReduceScheduleThread2 reduceScheduleThread = new ReduceScheduleThread2();
+      //reduceScheduleThread.start();
     }
   }
 

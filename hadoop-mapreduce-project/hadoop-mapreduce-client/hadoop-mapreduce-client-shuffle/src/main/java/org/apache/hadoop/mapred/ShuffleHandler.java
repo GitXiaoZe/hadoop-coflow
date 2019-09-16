@@ -1037,6 +1037,7 @@ public class ShuffleHandler extends AuxiliaryService {
 
 
       if(use_coflow){
+        /*
         try {
           Field field = ch.getClass().getSuperclass().getSuperclass().getDeclaredField("channel");
           Field modifiersField = field.getClass().getDeclaredField("modifiers");
@@ -1055,6 +1056,7 @@ public class ShuffleHandler extends AuxiliaryService {
         catch(java.lang.IllegalArgumentException e) {
           LOG.error("illegal argument exception: " + e);
         }
+         */
       }
 
 

@@ -689,6 +689,47 @@ public class RMContainerAllocator extends RMContainerRequestor
           }
           LOG.info("wait getMapIntermediateOutputThread to fetch output");
           while(MRAppMaster.getMapIntermediateOutputThread.isAlive()) { }
+
+
+
+          LOG.info("The number of pending reduce request is " + pendingReduces.size()
+                  + " ; The number of MapOutputSize items is " + MRAppMaster.reduceInfos.reduce_num);
+
+          ContainerRequest[] pendingReducesArray = new ContainerRequest[MRAppMaster.reduceInfos.reduce_num];
+          pendingReduces.toArray(pendingReducesArray);
+          pendingReduces.clear();
+
+          class Pair implements Comparable<Pair>{
+            private long reduce_size;
+            private int reduce_idx;
+
+            public Pair(long reduce_size_, int reduce_idx_){
+              this.reduce_size = reduce_size_;
+              this.reduce_idx = reduce_idx_;
+            }
+            @Override
+            public int compareTo(Pair p){
+              if(this.reduce_size < p.reduce_size)
+                return -1;
+              else if(this.reduce_size > p.reduce_size)
+                return 1;
+              else
+                return 0;
+            }
+          }
+
+          Pair tmp[] = new Pair[MRAppMaster.reduceInfos.reduce_num];
+          for(int i=0; i <tmp.length; i++)
+            tmp[i] = new Pair(MRAppMaster.reduceInfos.outputSize[i], i);
+
+          Arrays.sort(tmp);
+
+          for(int i=0; i < tmp.length; i++)
+            pendingReduces.add(pendingReducesArray[tmp[i].reduce_idx]);
+
+
+
+          /*
           Socket socket_to_RM = null;
           ObjectOutputStream oos = null;
           try{
@@ -707,11 +748,11 @@ public class RMContainerAllocator extends RMContainerRequestor
               throw new YarnRuntimeException(e);
             }
           }
+           */
           long end = System.currentTimeMillis();
-          LOG.info("the cost of transfer reduceInfos is " + ((end-start)/1000.0) + "s.");
+          LOG.info("The cost of transfer reduceInfos is " + ((end-start)/1000.0) + "s.");
         }
-
-
+        
       }
     }
     
