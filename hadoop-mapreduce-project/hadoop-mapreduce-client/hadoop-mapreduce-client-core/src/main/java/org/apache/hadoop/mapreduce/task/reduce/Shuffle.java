@@ -71,8 +71,6 @@ public class Shuffle<K, V> implements ShuffleConsumerPlugin<K, V>, ExceptionRepo
   private Map<TaskAttemptID, MapOutputFile> localMapFiles;
 
   private static final Logger LOG = LoggerFactory.getLogger(Shuffle.class.getName());
-  private long taskShufflePhaseStartTime;
-  private long taskShufflePhaseFinishTime;
 
   private boolean use_coflow;
   public  WaitForFetcherFinishThread wfThread = null;
@@ -116,8 +114,7 @@ public class Shuffle<K, V> implements ShuffleConsumerPlugin<K, V>, ExceptionRepo
     // Scale the maximum events we fetch per RPC call to mitigate OOM issues
     // on the ApplicationMaster when a thundering herd of reducers fetch events
     // TODO: This should not be necessary after HADOOP-8942
-	
-	taskShufflePhaseStartTime = System.currentTimeMillis();
+
     int eventsPerReducer = Math.max(MIN_EVENTS_TO_FETCH,
         MAX_RPC_OUTSTANDING_EVENTS / jobConf.getNumReduceTasks());
     int maxEventsToFetch = Math.min(MAX_EVENTS_TO_FETCH, eventsPerReducer);
@@ -185,9 +182,6 @@ public class Shuffle<K, V> implements ShuffleConsumerPlugin<K, V>, ExceptionRepo
 
     copyPhase.complete(); // copy is already complete
 
-    taskShufflePhaseFinishTime = System.currentTimeMillis();
-    LOG.info("The task shuffle phase start time is " + taskShufflePhaseStartTime);
-    LOG.info("The task shuffle phase finish time is " + taskShufflePhaseFinishTime);
 
 
     taskStatus.setPhase(TaskStatus.Phase.SORT);

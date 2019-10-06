@@ -18,6 +18,8 @@
 package org.apache.hadoop.mapreduce.task.reduce;
 
 import java.io.IOException;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,15 +38,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DataInputBuffer;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.mapred.Counters;
-import org.apache.hadoop.mapred.IFile;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapOutputFile;
-import org.apache.hadoop.mapred.Merger;
-import org.apache.hadoop.mapred.RawKeyValueIterator;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.Task;
+import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.IFile.Reader;
 import org.apache.hadoop.mapred.IFile.Writer;
 import org.apache.hadoop.mapred.Merger.Segment;
@@ -269,6 +263,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
       LOG.info(mapId + ": Shuffling to disk since " + requestedSize + 
                " is greater than maxSingleShuffleLimit (" + 
                maxSingleShuffleLimit + ")");
+      ReduceTask.OnDiskShuffle++;
       return new OnDiskMapOutput<K,V>(mapId, this, requestedSize, jobConf,
          fetcher, true, FileSystem.getLocal(jobConf).getRaw(),
          mapOutputFile.getInputFileForWrite(mapId.getTaskID(), requestedSize));
@@ -290,6 +285,7 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     // all the stalled threads
     
     if (usedMemory > memoryLimit) {
+      ReduceTask.failToShuffle++;
       LOG.debug(mapId + ": Stalling shuffle since usedMemory (" + usedMemory
           + ") is greater than memoryLimit (" + memoryLimit + ")." + 
           " CommitMemory is (" + commitMemory + ")"); 
@@ -299,7 +295,8 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
     // Allow the in-memory shuffle to progress
     LOG.debug(mapId + ": Proceeding with shuffle since usedMemory ("
         + usedMemory + ") is lesser than memoryLimit (" + memoryLimit + ")."
-        + "CommitMemory is (" + commitMemory + ")"); 
+        + "CommitMemory is (" + commitMemory + ")");
+    ReduceTask.inMemoryShuffle++;
     return unconditionalReserve(mapId, requestedSize, true);
   }
   
@@ -445,7 +442,11 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
       if (inputs == null || inputs.size() == 0) {
         return;
       }
-      
+      List<GarbageCollectorMXBean> list = ManagementFactory.getGarbageCollectorMXBeans();
+      long beginToMerge = 0;
+      for(GarbageCollectorMXBean item : list){
+        beginToMerge += item.getCollectionTime();
+      }
       //name this output file same as the name of the first file that is 
       //there in the current list of inmem files (this is guaranteed to
       //be absent on the disk currently. So we don't overwrite a prev. 
@@ -494,6 +495,10 @@ public class MergeManagerImpl<K, V> implements MergeManager<K, V> {
           combineAndSpill(rIter, reduceCombineInputCounter);
         }
         writer.close();
+        for(GarbageCollectorMXBean item : list){
+          ReduceTask.inMemoryMergeGCTime += item.getCollectionTime();
+        }
+        ReduceTask.inMemoryMergeGCTime -= beginToMerge;
         compressAwarePath = new CompressAwarePath(outputPath,
             writer.getRawLength(), writer.getCompressedLength());
 

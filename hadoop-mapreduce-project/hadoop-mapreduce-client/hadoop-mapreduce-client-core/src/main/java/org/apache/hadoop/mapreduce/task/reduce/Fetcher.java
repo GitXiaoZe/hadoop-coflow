@@ -233,7 +233,7 @@ class Fetcher<K,V> extends Thread {
         */
         LOG.info("Fetcher-"+id+" have shutdown");
       }else{
-        LOG.info("Fetcher coflow" + use_coflow);
+        //LOG.info("Fetcher coflow" + use_coflow);
       }
 
     } catch (InterruptedException ie) {

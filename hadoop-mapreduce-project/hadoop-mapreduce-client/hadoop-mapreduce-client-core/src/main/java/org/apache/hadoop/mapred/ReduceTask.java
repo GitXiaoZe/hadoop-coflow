@@ -90,8 +90,19 @@ public class ReduceTask extends Task {
   private Progress sortPhase;
   private Progress reducePhase;
 
-  private long taskSortPhaseFinishTime;
-  private long taskReducePhaseFinishTime;
+  static long reduceIntialTime_start = 0;
+  static long reduceShuffleMerge_start = 0;
+  static long reduceProcTime_start = 0;
+
+  static long reduceIntialTime_end = 0;
+  static long reduceShuffleMerge_end = 0;
+  static long reduceProcTime_end = 0;
+
+  public static int inMemoryShuffle = 0;
+  public static int OnDiskShuffle = 0;
+  public static int failToShuffle = 0;
+
+  public static long inMemoryMergeGCTime = 0;
 
   private Counters.Counter shuffledMapsCounter = 
     getCounters().findCounter(TaskCounter.SHUFFLED_MAPS);
@@ -323,6 +334,7 @@ public class ReduceTask extends Task {
   @SuppressWarnings("unchecked")
   public void run(JobConf job, final TaskUmbilicalProtocol umbilical)
     throws IOException, InterruptedException, ClassNotFoundException {
+    ReduceTask.reduceIntialTime_start = System.nanoTime();
     job.setBoolean(JobContext.SKIP_RECORDS, isSkipping());
 
     if (isMapOrReduce()) {
@@ -365,7 +377,8 @@ public class ReduceTask extends Task {
 					
     shuffleConsumerPlugin = ReflectionUtils.newInstance(clazz, job);
     LOG.info("Using ShuffleConsumerPlugin: " + shuffleConsumerPlugin);
-
+    ReduceTask.reduceIntialTime_end = System.nanoTime();
+    ReduceTask.reduceShuffleMerge_start  = ReduceTask.reduceIntialTime_end;
     ShuffleConsumerPlugin.Context shuffleContext = 
       new ShuffleConsumerPlugin.Context(getTaskID(), job, FileSystem.getLocal(job), umbilical, 
                   super.lDirAlloc, reporter, codec, 
@@ -382,9 +395,10 @@ public class ReduceTask extends Task {
 
     // free up the data structures
     mapOutputFilesOnDisk.clear();
-    
     sortPhase.complete();                         // sort is complete
-	taskSortPhaseFinishTime = System.currentTimeMillis();
+
+    ReduceTask.reduceShuffleMerge_end = System.nanoTime();
+    ReduceTask.reduceProcTime_start = ReduceTask.reduceShuffleMerge_end;
     setPhase(TaskStatus.Phase.REDUCE); 
     statusUpdate(umbilical);
     Class keyClass = job.getMapOutputKeyClass();
@@ -400,11 +414,18 @@ public class ReduceTask extends Task {
                     keyClass, valueClass);
     }
 
-	taskReducePhaseFinishTime = System.currentTimeMillis();
     shuffleConsumerPlugin.close();
     done(umbilical, reporter);
-	LOG.info("The task sort phase finish time is " + taskSortPhaseFinishTime);
-	LOG.info("The task reduce phase finish time is " + taskReducePhaseFinishTime);
+    LOG.info(" Task-" + this.toString() + " NanoTime-Measure : reduceIntialTime_start = " + ReduceTask.reduceIntialTime_start + ";"
+            + "reduceIntialTime_end = " + ReduceTask.reduceIntialTime_end + ";"
+            + "reduceShuffleMerge_start = " + ReduceTask.reduceShuffleMerge_start + ";"
+            + "reduceShuffleMerge_end = " + ReduceTask.reduceShuffleMerge_end + ";"
+            + "reduceProcTime_start = " + ReduceTask.reduceProcTime_start + ";"
+            + "reduceProcTime_end = " + ReduceTask.reduceProcTime_end + ";");
+    LOG.info(" Task-" + this.toString() + " Shuffle-Measure : inMemoryShuffle = " + ReduceTask.inMemoryShuffle + ";"
+            + "onDiskShuffle = " + ReduceTask.OnDiskShuffle + ";"
+            + "failToShuffle = " + ReduceTask.failToShuffle + ";"
+            + "inMemoryMergeGCTime = "+ ReduceTask.inMemoryMergeGCTime +";");
   }
 
   @SuppressWarnings("unchecked")
@@ -635,6 +656,7 @@ public class ReduceTask extends Task {
                                                valueClass);
     try {
       reducer.run(reducerContext);
+      ReduceTask.reduceProcTime_end = System.nanoTime();
     } finally {
       trackedRW.close(reducerContext);
     }

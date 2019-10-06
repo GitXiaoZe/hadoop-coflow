@@ -70,7 +70,10 @@ class YarnChild {
 
   static volatile TaskAttemptID taskid = null;
 
+
   public static void main(String[] args) throws Throwable {
+    long yarnChildInitial = System.nanoTime();
+
     Thread.setDefaultUncaughtExceptionHandler(new YarnUncaughtExceptionHandler());
     LOG.debug("Child starting");
 
@@ -163,6 +166,7 @@ class YarnChild {
 
       logSyncer = TaskLog.createLogSyncer();
 
+      long beforeExecTask = System.nanoTime();
       // Create a final reference to the task for the doAs block
       final Task taskFinal = task;
       childUGI.doAs(new PrivilegedExceptionAction<Object>() {
@@ -175,6 +179,8 @@ class YarnChild {
           return null;
         }
       });
+      LOG.info(" Task-" + task +  " NanoTime-Measure : yarnChildInitial = " + yarnChildInitial +";"
+              +"beforeExecTask = " + beforeExecTask);
     } catch (FSError e) {
       LOG.error("FSError from child", e);
       if (!ShutdownHookManager.get().isShutdownInProgress()) {

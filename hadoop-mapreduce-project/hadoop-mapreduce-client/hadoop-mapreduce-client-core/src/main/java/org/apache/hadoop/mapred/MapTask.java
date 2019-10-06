@@ -31,6 +31,7 @@ import java.nio.IntBuffer;
 import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -104,14 +105,21 @@ public class MapTask extends Task {
   private Progress mapPhase;
   private Progress sortPhase;
 
-  private long taskMapPhaseStartTime;
-  private long taskMapPhaseFinishTime;
-  private long taskSortPhaseFinishTime;
   
   {   // set phase for this task
     setPhase(TaskStatus.Phase.MAP); 
     getProgress().setStatus("map");
   }
+
+  static long mapInitialTime_start = 0;
+  static long mapProcTime_start = 0;
+  static long mapMergeTime_start = 0;
+
+  static long mapInitialTime_end = 0;
+  static long mapProcTime_end = 0;
+  static long mapMergeTime_end = 0;
+
+  static ArrayList<Long> partitionSize = new ArrayList<Long>();
 
   public MapTask() {
     super();
@@ -320,6 +328,7 @@ public class MapTask extends Task {
   @Override
   public void run(final JobConf job, final TaskUmbilicalProtocol umbilical)
     throws IOException, ClassNotFoundException, InterruptedException {
+    MapTask.mapInitialTime_start = System.nanoTime();
     this.umbilical = umbilical;
     MapTask.use_coflow = job.getBoolean(YarnConfiguration.USE_COFLOW, YarnConfiguration.DEFAULT_USE_COFLOW);
     if (isMapTask()) {
@@ -352,17 +361,26 @@ public class MapTask extends Task {
       runTaskCleanupTask(umbilical, reporter);
       return;
     }
-
+    MapTask.mapInitialTime_end = System.nanoTime();
     if (useNewApi) {
       runNewMapper(job, splitMetaInfo, umbilical, reporter);
     } else {
       runOldMapper(job, splitMetaInfo, umbilical, reporter);
     }
-	taskSortPhaseFinishTime = System.currentTimeMillis();
+    MapTask.mapMergeTime_end = System.nanoTime();
     done(umbilical, reporter);
-	LOG.info("The task map phase start time is " + taskMapPhaseStartTime);
-	LOG.info("The task map phase finish time is " + taskMapPhaseFinishTime);
-	LOG.info("The task sort phase finish time is " + taskSortPhaseFinishTime);
+    LOG.info(" Task-" + this.toString() + " NanoTime-Measure : mapInitialTime_start = " + MapTask.mapInitialTime_start + ";"
+            + "mapInitialTime_end = " + MapTask.mapInitialTime_end + ";"
+            + "mapProcTime_start = " + MapTask.mapProcTime_start + ";"
+            + "mapProcTime_end = " + MapTask.mapProcTime_end + ";"
+            + "mapMergeTime_start = " + MapTask.mapMergeTime_start + ";"
+            + "mapMergeTime_end = " + MapTask.mapMergeTime_end + ";");
+    StringBuilder sb = new StringBuilder();
+    for(Long item : MapTask.partitionSize){
+      sb.append(item.toString());
+      sb.append(';');
+    }
+    LOG.info(" Task-" + this.toString() + " PartitionSize : " + sb.toString());
   }
 
   public Progress getSortPhase() {
@@ -762,6 +780,7 @@ public class MapTask extends Task {
                     TaskReporter reporter
                     ) throws IOException, ClassNotFoundException,
                              InterruptedException {
+    MapTask.mapProcTime_start = System.nanoTime();
     // make a task context so we can get the classes
     org.apache.hadoop.mapreduce.TaskAttemptContext taskContext =
       new org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl(job, 
@@ -810,10 +829,8 @@ public class MapTask extends Task {
 
     try {
       input.initialize(split, mapperContext);
-	  taskMapPhaseStartTime = System.currentTimeMillis();
       mapper.run(mapperContext);
       mapPhase.complete();
-	  taskMapPhaseFinishTime = System.currentTimeMillis();
       setPhase(TaskStatus.Phase.SORT);
       statusUpdate(umbilical);
       input.close();
@@ -1538,6 +1555,9 @@ public class MapTask extends Task {
       } catch (InterruptedException e) {
         throw new IOException("Spill failed", e);
       }
+      MapTask.mapProcTime_end = System.nanoTime();
+      MapTask.mapMergeTime_start = MapTask.mapProcTime_end;
+
       // release sort buffer before the merge
       kvbuffer = null;
       mergeParts();
@@ -1881,7 +1901,8 @@ public class MapTask extends Task {
             mapOutputFile.getOutputIndexFileForWriteInVolume(filename[0]), job);
           if(MapTask.use_coflow)
             indexCacheList.get(0).writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
-
+          else
+            indexCacheList.get(0).writeToMapTask();
         }
         sortPhase.complete();
         return;
@@ -1901,9 +1922,8 @@ public class MapTask extends Task {
           mapOutputFile.getOutputFileForWrite(finalOutFileSize);
       Path finalIndexFile =
           mapOutputFile.getOutputIndexFileForWrite(finalIndexFileSize);
-	  LOG.info("finalIndexFile is " + finalIndexFile);
-	  LOG.info("finalOutputFile is " + finalOutputFile);
-      LOG.info("numSpills = " + numSpills);
+	  LOG.info("finalIndexFile is " + finalIndexFile + "; " + "finalOutputFile is " + finalOutputFile);
+
       //The output stream for the final single output file
       FSDataOutputStream finalOut = rfs.create(finalOutputFile, true, 4096);
       FSDataOutputStream finalPartitionOut = null;
@@ -1932,6 +1952,8 @@ public class MapTask extends Task {
           sr.writeToFile(finalIndexFile, job);
           if(MapTask.use_coflow)
             sr.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
+          else
+            sr.writeToMapTask();
         } finally {
           finalOut.close();
           if (finalPartitionOut != null) {
@@ -2009,10 +2031,10 @@ public class MapTask extends Task {
         }
         spillRec.writeToFile(finalIndexFile, job);
         finalOut.close();
-        if(MapTask.use_coflow) {
-          LOG.info("SpillRecord writeToNodeManager");
+        if(MapTask.use_coflow)
           spillRec.writeToNodeManager(mapTask.getJobID().getJtIdentifier() + "_" + mapTask.getJobID().getId());
-        }
+        else
+          spillRec.writeToMapTask();
         if (finalPartitionOut != null) {
           finalPartitionOut.close();
         }

@@ -190,6 +190,7 @@ public class SpillRecord {
       ret += entries.get(3*i+1) + ";";
     }
     ret += entries.get(3*i+1);
+
     LOG.info("MapTask begin to write NM");
     //send to NM;
     Socket socket;
@@ -206,6 +207,14 @@ public class SpillRecord {
     }catch(IOException e){
       e.printStackTrace();
     }
+  }
+  public void writeToMapTask(){
+    int length = size();
+    int i;
+    for(i=0; i < length-1; i++){
+      MapTask.partitionSize.add(entries.get(3*i+1));
+    }
+    MapTask.partitionSize.add(entries.get(3*i+1));
   }
 
 }
