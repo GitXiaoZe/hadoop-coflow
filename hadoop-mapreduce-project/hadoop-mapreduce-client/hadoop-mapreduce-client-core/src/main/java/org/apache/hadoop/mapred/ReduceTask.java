@@ -98,6 +98,8 @@ public class ReduceTask extends Task {
   static long reduceShuffleMerge_end = 0;
   static long reduceProcTime_end = 0;
 
+  public static long shuffleTime = 0;
+
   public static int inMemoryShuffle = 0;
   public static int OnDiskShuffle = 0;
   public static int failToShuffle = 0;
@@ -425,7 +427,8 @@ public class ReduceTask extends Task {
     LOG.info(" Task-" + this.toString() + " Shuffle-Measure : inMemoryShuffle = " + ReduceTask.inMemoryShuffle + ";"
             + "onDiskShuffle = " + ReduceTask.OnDiskShuffle + ";"
             + "failToShuffle = " + ReduceTask.failToShuffle + ";"
-            + "inMemoryMergeGCTime = "+ ReduceTask.inMemoryMergeGCTime +";");
+            + "inMemoryMergeGCTime = "+ ReduceTask.inMemoryMergeGCTime +";"
+            + "shuffleTime = " + ReduceTask.shuffleTime +";");
   }
 
   @SuppressWarnings("unchecked")

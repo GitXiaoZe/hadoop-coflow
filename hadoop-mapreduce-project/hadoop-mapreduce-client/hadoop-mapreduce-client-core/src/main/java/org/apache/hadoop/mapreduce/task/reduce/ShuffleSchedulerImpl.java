@@ -39,10 +39,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapred.Counters;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.TaskCompletionEvent;
-import org.apache.hadoop.mapred.TaskStatus;
+import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.TaskID;
@@ -206,6 +203,8 @@ public class ShuffleSchedulerImpl<K,V> implements ShuffleScheduler<K,V> {
       // update single copy task status
       long copyMillis = (endMillis - startMillis);
       if (copyMillis == 0) copyMillis = 1;
+      ReduceTask.shuffleTime += copyMillis;
+
       float bytesPerMillis = (float) bytes / copyMillis;
       float transferRate = bytesPerMillis * BYTES_PER_MILLIS_TO_MBS;
       String individualProgress = "copy task(" + mapId + " succeeded"
@@ -217,8 +216,7 @@ public class ShuffleSchedulerImpl<K,V> implements ShuffleScheduler<K,V> {
       updateStatus(individualProgress);
       reduceShuffleBytes.increment(bytes);
       lastProgressTime = Time.monotonicNow();
-      // LOG.debug("map " + mapId + " done " + status.getStateString());
-      LOG.info("map " + mapId + " done " + status.getStateString() + individualProgress);
+      LOG.debug("map " + mapId + " done " + status.getStateString());
     } else {
       LOG.warn("Aborting already-finished MapOutput for " + mapId);
       output.abort();

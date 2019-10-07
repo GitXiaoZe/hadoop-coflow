@@ -219,10 +219,8 @@ class Fetcher<K,V> extends Thread {
             metrics.threadFree();            
           }
         }
-        LOG.info("Fetcher Thread is running");
       }
 
-      LOG.info("Fetcher exit while ");
       if(use_coflow){
         /*
         LOG.info("Fetcher-"+id+" begins to shutdown");
@@ -231,13 +229,12 @@ class Fetcher<K,V> extends Thread {
           ((Shuffle)exceptionReporter).wfThread.notify();
         }
         */
-        LOG.info("Fetcher-"+id+" have shutdown");
       }else{
         //LOG.info("Fetcher coflow" + use_coflow);
       }
 
     } catch (InterruptedException ie) {
-      LOG.info("Fetcher exit Interrupted");
+      //LOG.info("Fetcher exit Interrupted");
       if(use_coflow){
         /*
         LOG.info("Fetcher-"+id+" begins to shutdown");
@@ -246,9 +243,9 @@ class Fetcher<K,V> extends Thread {
           ((Shuffle)exceptionReporter).wfThread.notify();
         }
          */
-        LOG.info("Fetcher-"+id+" have shutdown");
+        //LOG.info("Fetcher-"+id+" have shutdown");
       }else{
-        LOG.info("Fetcher coflow" + use_coflow);
+        //LOG.info("Fetcher coflow" + use_coflow);
       }
       return;
     } catch (Throwable t) {
@@ -823,8 +820,7 @@ class Fetcher<K,V> extends Thread {
     url.append("&priority=" + priority);
     // }
    
-    // LOG.debug("MapOutput URL for " + host + " -> " + url.toString());
-    LOG.info("MapOutput URL for " + host + " -> " + url.toString());
+    LOG.debug("MapOutput URL for " + host + " -> " + url.toString());
     return new URL(url.toString());
   }
   
